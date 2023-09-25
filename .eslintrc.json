@@ -1,0 +1,49 @@
+{
+  "root": true,
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:jsx-a11y/recommended",
+    "plugin:react-hooks/recommended",
+    "airbnb"
+  ],
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es6": true,
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    },
+    "import/resolver": {
+      "node": {
+        "moduleDirectory": ["node_modules", "src/"]
+      }
+    }
+  },
+  "plugins": ["import", "react"],
+  "rules": {
+    "comma-dangle": ["error", "never"],
+    "import/order": ["error", {
+      "groups": ["builtin", "external", "parent", "sibling", "index"]
+    }],
+    "react/react-in-jsx-scope": "off",
+    "sort-vars": ["error", { "ignoreCase": true }],
+    "linebreak-style": 0,
+    "react/prop-types": "off"
+  },
+  "globals": {
+      "React": "writable"
+  }
+}

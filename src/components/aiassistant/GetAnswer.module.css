@@ -1,0 +1,93 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2em 0em;
+}
+
+.inputContainer {
+  position: relative;
+  margin-bottom: 1em;
+}
+
+.inputBox {
+  width: 60em;
+  padding: 8px 4em 8px 8px;
+  border: 1px solid #ccc !important;
+  border-radius: 0.5em;
+  transition: border-color 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  outline: none;
+}
+
+.inputBox:focus {
+  border-color: orange !important;
+  background-color: white;
+}
+
+.submitButton {
+  position: absolute;
+  width: 30px;
+  top: 50%;
+  right: 1em;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.responseContainer {
+  margin-top: 2em;
+  width: 100%;
+
+}
+
+.queryContainer {
+  background-color: rgba(88, 89, 91, 5%);
+}
+
+.message {
+  display: flex;
+  align-items: flex-start;
+  margin: 15px 0;
+  padding: 1em 8em;
+}
+
+.icon {
+  width: 60px;
+  text-align: center;
+}
+
+.messageText {
+  margin-left: 2em;
+  margin-top: 5px;
+  width: calc(100% - 60px);
+}
+
+.form {
+  display: flex;
+  justify-content: center;
+}
+
+.deleteBtn {
+  padding: 10px;
+  outline: none;
+  border: none;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

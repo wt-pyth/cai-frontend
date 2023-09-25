@@ -1,0 +1,17 @@
+.secnav {
+    background-color: #0C4A6E;
+    text-decoration: none !important;
+    color: white !important;
+}
+
+.secnav :hover{
+    color: white !important;
+}
+
+.secnav > li {
+    color: white !important;
+}
+
+.secnav > li:hover::after {
+    display: none !important;
+}

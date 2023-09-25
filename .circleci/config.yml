@@ -1,0 +1,60 @@
+defaults: &defaults
+  docker:
+    - image: cimg/node:18.2.0
+  working_directory: ~/tmp/circleci-now-caas
+
+version: 2
+jobs:
+  checkout:
+    <<: *defaults
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/tmp/circleci-now-caas
+      - run:
+          name: NPM Github Authentication
+          command: printf "@fortawesome:registry=https://npm.fontawesome.com/\n//npm.fontawesome.com/:_authToken=${FA_TOKEN}\n\n@straitsit:registry=https://npm.pkg.github.com/straitsit\n//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" > .npmrc
+      - run:
+          name: Clear Deps
+          command: npm config set legacy-peer-deps true
+      - run:
+          name: Clear Cache
+          command: npm cache clean --force
+      - run:
+          name: NPM Install
+          command: npm install antd --force
+      - run:
+          name: NPM Install
+          command: npm install --save --legacy-peer-deps --force
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  deploy:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/tmp/circleci-now-caas
+      - run:
+          name: Deploy
+          command: |
+            ./.vercel/linkproj.sh
+            if [ "${CIRCLE_BRANCH}" == "main" ];
+            then
+              npx vercel --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID --confirm --prod
+            else
+              npx vercel --token $VERCEL_TOKEN --scope $VERCEL_ORG_ID --confirm
+            fi
+workflows:
+  version: 2
+  test-deploy-purge:
+    jobs:
+      - checkout
+      - deploy:
+          filters:
+            branches:
+              only:
+                - develop
+                - main
+          requires:
+            - checkout

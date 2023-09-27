@@ -61,7 +61,7 @@ const UserProvider = ({ children }) => {
       setAuthToken(token);
       setUser(profileData);
       toast.success(`Welcome! ${profileData.first_name}`);
-      router.push('/myknowledge');
+      router.push('/mycapabara');
     } catch (error) {
       setDisabled(false);
       toastError(error);

@@ -43,7 +43,7 @@ const LoginForm = () => {
 
   useEffect(() => {
     if (isAuth) {
-      router.push('/myknowledge');
+      router.push('/mycapabara');
     }
   }, [isAuth, router]);
 
@@ -58,7 +58,7 @@ const LoginForm = () => {
         }}
         className="p-20 pt-0"
       >
-        <img className="w-80 mx-auto mb-12" src="/CapabaraR-KnowledgeSystemPrimary.png" alt="" />
+        <img className="w-80 mx-auto mb-12" src="/TM_CapabaraLogo-210622-PrimaryLogo.png" alt="" />
         <Card
           className="w-6/12 block"
           style={{

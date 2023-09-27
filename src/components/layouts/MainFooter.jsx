@@ -15,7 +15,7 @@ const MainFooter = () => (
       className="mr-2"
       strong
     >
-      CAPABARA Knowledge System ©
+      CAPABARA ©
       {year}
     </Text>
     Created by Straits Interactive Pte Ltd

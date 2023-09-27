@@ -14,7 +14,7 @@ import PFruitButton from 'components/PFruitButton';
 
 const DynToaster = dynamic(() => import('react-toastify').then((mod) => mod.ToastContainer));
 
-function CKSApp({ Component, pageProps }) {
+function CapabaraPlatformApp({ Component, pageProps }) {
   return (
     <UserProvider>
       <ObjectiveProvider>
@@ -26,4 +26,4 @@ function CKSApp({ Component, pageProps }) {
   );
 }
 
-export default CKSApp;
+export default CapabaraPlatformApp;

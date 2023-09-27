@@ -41,7 +41,7 @@ const PwdResetConfirm = () => {
 
   useEffect(() => {
     if (isAuth) {
-      router.push('/myknowledge');
+      router.push('/mycapabara');
     }
   }, [isAuth, router]);
 

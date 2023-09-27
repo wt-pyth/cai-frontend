@@ -9,12 +9,12 @@ import Navbar from 'components/layouts/Navbar';
 
 const { Content } = Layout;
 
-export default function News() {
+export default function MyCapabara() {
   return (
     <Layout className="layout h-screen">
       <Navbar />
       <Content>
-        News Page
+        My Capabara Page
       </Content>
       <MainFooter />
     </Layout>

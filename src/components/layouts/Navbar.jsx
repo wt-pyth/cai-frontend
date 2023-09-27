@@ -20,8 +20,7 @@ import { userContext } from 'contexts/Auth';
 const parse = require('html-react-parser');
 
 const menu = [
-  { label: 'My Knowledge', href: '/myknowledge' },
-  { label: 'AI DPO', href: '/aiassistant' }
+  { label: 'My Capabara', href: '/mycapabara' }
 ];
 
 const Navbar = () => {
@@ -154,7 +153,7 @@ const Navbar = () => {
           <div className="relative flex h-16 justify-between">
             <div className="flex flex-1 items-center justify-start">
               <div className="flex flex-shrink-0 items-center">
-                <img src="/CapabaraR-KnowledgeSystemSecondary.png" className="h-10" alt="" />
+                <img src="/TM_CapabaraLogo-210622-SecondaryLogo.png" className="h-7" alt="" />
               </div>
               <div className="ml-12 flex space-x-8 py-2">
                 {menu.map((item) => (

@@ -1,7 +1,7 @@
 defaults: &defaults
   docker:
     - image: cimg/node:18.2.0
-  working_directory: ~/tmp/circleci-now-caas
+  working_directory: ~/tmp/circleci-capabaraPlatform
 
 version: 2
 jobs:
@@ -10,7 +10,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: ~/tmp/circleci-now-caas
+          at: ~/tmp/circleci-capabaraPlatform
       - run:
           name: NPM Github Authentication
           command: printf "@fortawesome:registry=https://npm.fontawesome.com/\n//npm.fontawesome.com/:_authToken=${FA_TOKEN}\n\n@straitsit:registry=https://npm.pkg.github.com/straitsit\n//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" > .npmrc
@@ -34,7 +34,7 @@ jobs:
     <<: *defaults
     steps:
       - attach_workspace:
-          at: ~/tmp/circleci-now-caas
+          at: ~/tmp/circleci-capabaraPlatform
       - run:
           name: Deploy
           command: |

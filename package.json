@@ -19,7 +19,6 @@
     "@fortawesome/pro-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-fontawesome": "^0.1.14",
     "@sentry/nextjs": "^7.7.0",
-    "@straitsit/dpo-form-components": "^1.4.0",
     "antd": "^4.24.10",
     "antd-form-builder": "^2.1.4",
     "autoprefixer": "^10.4.1",

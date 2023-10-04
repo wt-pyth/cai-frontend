@@ -1,0 +1,70 @@
+.container {
+    align-items: center;
+    justify-content: center;
+}
+
+.appCardContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 0em 0em 0em 0em;
+}
+
+.appRow {
+    gap: 6em;
+}
+
+.appImage {
+    width: 204px;
+}
+
+.appCard {
+    width: 330px;
+    border-radius: 12px;
+    box-shadow: 6px 6px 10px #D9D9D9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.advertContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 1em 0em 0em 0em;
+}
+
+.advertCard {
+    height: 380px;
+    border-radius: 12px;
+    box-shadow: 6px 6px 10px #D9D9D9;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.advertImage {
+    width: 800px;
+}
+
+.courseContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 0em 1em 0em 1em;
+}
+
+.courseCard {
+    width: 212px;
+    height: 250px;
+    font-size: small;
+    border-radius: 12px;
+    box-shadow: 6px 6px 10px #D9D9D9;
+}
+
+.courseRow {
+    gap: 1em;
+}

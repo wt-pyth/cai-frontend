@@ -25,7 +25,7 @@ export default function MyCapabara() {
           <div className={styles.appCardContainer}>
             <Row type="flex" className={styles.appRow}>
               <Badge.Ribbon text="Develop" color="#0C4A6E">
-                <a href="https://aitoolkit.capabara.com">
+                <a href="https://develop.capabara.com">
                   <Card className={styles.appCard}>
                     <img className={styles.appImage} src="./CapabaraR-AIAssistantPrimary.png" alt="Capability develop" />
                   </Card>

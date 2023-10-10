@@ -61,37 +61,37 @@ export default function MyCapabara() {
           <div className={styles.courseContainer}>
             <Row type="flex" className={styles.courseRow}>
 
-              <a href="https://dpoinbox.genexist.com/" target='_blank'>
+              <a href="https://dpoinbox.genexist.com/" target="_blank" rel="noreferrer">
                 <Card cover={<img src="./dpoinbox.png" alt="DPOinBox Logo" />} className={styles.courseCard}>
                   DPOinBox
                 </Card>
               </a>
 
-              <a href="https://www.dpexnetwork.org/courses" target='_blank'>
+              <a href="https://www.dpexnetwork.org/courses" target="_blank" rel="noreferrer">
                 <Card cover={<img src="./6264aa943c33126392a9aeb2331077e5.webp" alt="Course details" />} className={styles.courseCard}>
                   Certified AI Business Professional
                 </Card>
               </a>
 
-              <a href="https://www.dpexnetwork.org/courses" target='_blank'>
+              <a href="https://www.dpexnetwork.org/courses" target="_blank" rel="noreferrer">
                 <Card cover={<img src="./d3be769196df5b139926bf0f69448b27.webp" alt="Course details" />} className={styles.courseCard}>
                   Practical Approach to Generative AI
                 </Card>
               </a>
 
-              <a href="https://www.dpexnetwork.org/courses" target='_blank'>
+              <a href="https://www.dpexnetwork.org/courses" target="_blank" rel="noreferrer">
                 <Card cover={<img src="./Dx8vGRM4Eco9kLwYwBE2cA.png" alt="Course details" />} className={styles.courseCard}>
                   Conversational AI and Prompt Techniques
                 </Card>
               </a>
 
-              <a href="https://www.dpexnetwork.org/courses" target='_blank'>
+              <a href="https://www.dpexnetwork.org/courses" target="_blank" rel="noreferrer">
                 <Card cover={<img src="./cu5DFACrgq3rJkDxHVJ6jt.png" alt="Course details" />} className={styles.courseCard}>
                   Applications of Generative AI and Business Productivity
                 </Card>
               </a>
 
-              <a href="https://www.dpexnetwork.org/courses" target='_blank'>
+              <a href="https://www.dpexnetwork.org/courses" target="_blank" rel="noreferrer">
                 <Card cover={<img src="./7PTKskh9b67KAXFC7eUqmG.png" alt="Course details" />} className={styles.courseCard}>
                   Data Ethics and AI Governance Frameworks
                 </Card>

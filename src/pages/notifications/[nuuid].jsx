@@ -7,8 +7,10 @@ const NotifRedirect = () => {
   const { nuuid } = router.query;
 
   useEffect(() => {
-    window.location.replace(`https://manage.capabara.com/notifications/${nuuid}`);
-  }, []);
+    if (nuuid) {
+      window.location.replace(`https://manage.capabara.com/notifications/${nuuid}`);
+    }
+  }, [nuuid]);
 
   return (
     <MainLayout>

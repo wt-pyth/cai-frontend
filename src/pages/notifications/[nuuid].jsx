@@ -5,10 +5,10 @@ import MainLayout from 'components/layouts/Layout';
 const NotifRedirect = () => {
   const router = useRouter();
   const { nuuid } = router.query;
-  
+
   useEffect(() => {
     window.location.replace(`https://manage.capabara.com/notifications/${nuuid}`);
-  },[]);
+  }, []);
 
   return (
     <MainLayout>

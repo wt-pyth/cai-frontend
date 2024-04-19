@@ -1,5 +1,5 @@
 import {
-  Button, Card, Divider, Form, Layout, Typography
+  Button, Card, Form, Layout, Typography
 } from 'antd';
 import FormBuilder from 'antd-form-builder';
 import Link from 'next/link';
@@ -89,12 +89,6 @@ const LoginForm = () => {
               </div>
             </Form.Item>
           </Form>
-          <Divider />
-          <div className="text-center">
-            Need an account?
-            {' '}
-            <Link href="/signup/"><span className="text-primary ml-2 cursor-pointer">Sign Up</span></Link>
-          </div>
         </Card>
       </Content>
       <MainFooter />

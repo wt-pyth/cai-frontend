@@ -13,7 +13,7 @@ import toastError from 'utils/toastErrors';
 
 const userContext = createContext({ user: {} });
 
-const publicPages = ['/', '/signup', '/password/reset', '/password/confirm/[uid]/[token]'];
+const publicPages = ['/', '/password/reset', '/password/confirm/[uid]/[token]'];
 
 const UserProvider = ({ children }) => {
   // User is the name of the "data" that gets stored in context

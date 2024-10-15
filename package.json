@@ -51,6 +51,7 @@
     "react-use": "^17.3.2",
     "rsuite": "^5.23.3",
     "short-uuid": "^4.2.0",
+    "sweetalert2": "^11.10.5",
     "swr": "^1.2.2",
     "tailwindcss": "^3.0.11",
     "use-debounce": "^8.0.1"

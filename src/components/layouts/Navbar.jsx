@@ -19,15 +19,16 @@ import { userContext } from 'contexts/Auth';
 
 const parse = require('html-react-parser');
 
-const menu = [
-  { label: 'My Capabara', href: '/mycapabara' }
-];
-
 const Navbar = () => {
   const {
     logout, user, authToken, mounted
   } = useContext(userContext);
   const router = useRouter();
+
+  const menu = [
+    { label: 'My Capabara', href: '/mycapabara' },
+    ...(user?.profile?.display_name === 'Admin' ? [{ label: 'Organisation Management', href: '/organisation-management' }] : [])
+  ];
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [ntype, setNtype] = useState('unread');

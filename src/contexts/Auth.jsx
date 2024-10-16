@@ -8,12 +8,22 @@ import { toast } from 'react-toastify';
 import { useLocalStorage } from 'react-use';
 import useSWR from 'swr';
 import { apiGet } from 'services/api';
-import { BASE_PATH } from 'constants/site';
+import { BASE_PATH, AUTH_PATH, CLIENT_ID } from 'constants/site';
 import toastError from 'utils/toastErrors';
+import { Secret, Token } from 'fernet';
+
 
 const userContext = createContext({ user: {} });
 
-const publicPages = ['/', '/password/reset', '/password/confirm/[uid]/[token]'];
+const publicPages = [
+  '/',
+  '/signup',
+  '/password/reset',
+  '/password/confirm/[uid]/[token]',
+  '/resendemail',
+  '/confirm-email/[key]'
+];
+const adminRoutes = ['/organisation-management'];
 
 const UserProvider = ({ children }) => {
   // User is the name of the "data" that gets stored in context
@@ -33,7 +43,12 @@ const UserProvider = ({ children }) => {
     if (!authToken && router.query && !publicPages.includes(router.pathname)) {
       router.push(`/?next=${router.asPath}`);
     }
-  }, [authToken, router]);
+    if (adminRoutes.includes(router.pathname)) {
+      if (user?.profile?.display_name !== 'Admin') {
+        router.push('/');
+      }
+    }
+  }, [authToken, router, user]);
 
   let hlevel = 20;
   let dtaccess = [];
@@ -52,15 +67,36 @@ const UserProvider = ({ children }) => {
     setDisabled(true);
 
     try {
-      const res = await axios.post(`${BASE_PATH}/auth/login/`, values);
-      const { data } = res;
-      const token = data.key;
-      const profileRes = await axios.get(`${BASE_PATH}/auth/user/`, { headers: { Authorization: `Token ${token}` } });
-      const profileData = profileRes.data;
+      const secretKey = process.env.NEXT_PUBLIC_API_KEY;
+      const secret = new Secret(secretKey);
 
+      const params = new URLSearchParams({
+        grant_type: 'password',
+        client_id: CLIENT_ID,
+        ...values
+      });
+
+      const res = await axios.post(`${AUTH_PATH}o/token/`, params.toString(), {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
+
+      const { data } = res;
+      const token = data.access_token;
       setAuthToken(token);
-      setUser(profileData);
-      toast.success(`Welcome! ${profileData.first_name}`);
+
+      const verifyUser = await axios.get(`${AUTH_PATH}o/introspect?token=${token}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      console.log(verifyUser.data);
+      let decryptData = verifyUser.data.decode();
+      console.log(decryptData);
+
+      // const profileRes = await axios.get(`${BASE_PATH}/auth/user/`, {
+      //   headers: { Authorization: `Token ${token}` }
+      // });
+      // const profileData = { ...profileRes.data, ...verifyUser.data };
+      setUser(verifyUser);
+      // toast.success(`Welcome! ${profileData.first_name}`);
       router.push('/mycapabara');
     } catch (error) {
       setDisabled(false);
@@ -71,7 +107,8 @@ const UserProvider = ({ children }) => {
   const resetPassword = async (formData) => {
     // setDisabled(true);
     try {
-      await axios.post(`${BASE_PATH}/auth/password/reset/`, formData);
+      console.log(formData);
+      await axios.post(`${AUTH_PATH}api/auth/password/reset/`, formData);
       toast.success('Please check your email for the password reset link!');
     } catch (error) {
       // setDisabled(false);
@@ -82,10 +119,7 @@ const UserProvider = ({ children }) => {
   const resetPasswordConfirm = async (formData) => {
     // setDisabled(true);
     try {
-      await axios.post(
-        `${BASE_PATH}/auth/password/reset/confirm/`,
-        formData
-      );
+      await axios.post(`${AUTH_PATH}api/auth/password/reset/confirm/`, formData);
       router.push('/');
       toast.success('Reset Successful. Please login!');
     } catch (error) {
@@ -96,9 +130,7 @@ const UserProvider = ({ children }) => {
 
   // Logout updates the user data to default
   const logout = async () => {
-    await axios.post(
-      `${BASE_PATH}/auth/logout/`, '', authToken
-    );
+    await axios.post(`${BASE_PATH}/auth/logout/`, '', authToken);
     setUser(baseUser);
     setAuthToken('');
     router.push('/');
@@ -110,9 +142,11 @@ const UserProvider = ({ children }) => {
       const nformData = { ...formData };
       nformData.username = '-';
       nformData.password2 = formData.password1;
-      await axios.post(`${BASE_PATH}/register/`, nformData);
+      await axios.post(`${AUTH_PATH}api/auth/register/`, nformData);
       router.push('/');
-      toast.success('Registration successful. Please proceed to login. An email has been sent to your verify your account!');
+      toast.success(
+        'Registration successful. Please proceed to login. An email has been sent to your verify your account!'
+      );
     } catch (error) {
       // setDisabled(false);
       toastError(error);
@@ -137,8 +171,7 @@ const UserProvider = ({ children }) => {
         resetPassword,
         resetPasswordConfirm,
         setUser
-      }}
-    >
+      }}>
       {children}
     </userContext.Provider>
   );

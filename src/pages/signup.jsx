@@ -34,6 +34,12 @@ const meta = {
       placeholder: 'abc@example.com'
     },
     {
+      key: 'Activity Code',
+      label: 'Activity Code',
+      required: false,
+      placeholder: 'Activity Code'
+    },
+    {
       key: 'company',
       label: 'Company',
       required: true,

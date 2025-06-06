@@ -70,7 +70,6 @@ const Resendemail = () => {
                   style={{ borderRadius: '5px', marginLeft: '-3px' }}
                   htmlType="submit"
                   type="primary"
-                  disabled
                 >
                   Submit
                 </Button>

@@ -22,8 +22,9 @@ const ConfirmEmail = () => {
     const fetchConfirmation = async () => {
       setLoading(true);
       try {
+        const encodedEmail = encodeURIComponent(email);
         const { data } = await axios.get(
-          `${AUTH_PATH}api/auth/invite-confirm-email?email=${email}&key=${key}`
+          `${AUTH_PATH}api/auth/invite-confirm-email?email=${encodedEmail}&key=${key}`
         );
         setApiResponse(data.message || 'error');
       } catch (error) {

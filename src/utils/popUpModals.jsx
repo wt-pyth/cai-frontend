@@ -372,7 +372,7 @@ export const CompanyModel = ({
           email: values.companyEmail
         });
         if (res.status === 200) {
-          toast.success('Company updated successfully');
+          toast.success(res.data.message);
         } else {
           toast.error('Error updating company');
         }

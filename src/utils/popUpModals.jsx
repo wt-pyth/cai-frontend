@@ -133,7 +133,8 @@ export const UserModel = ({
         }
       );
       toast.success(response.data.message);
-      return response;    } catch (error) {
+      return response;
+    } catch (error) {
       const errorMessage = error.response?.data?.message || 'Error creating user';
       throw new Error(errorMessage);
     }

@@ -125,16 +125,17 @@ export const UserModel = ({
 
   const createUser = async (values) => {
     const formData = { ...values, username: '-' };
-    const response = await apiClient.get(
-      `api/auth/user/invite/${values.company}/?email=${formData.email}`,
-      {
-        headers: { Authorization: `Bearer ${authToken}` }
-      }
-    );
-    if (response.status === 200) {
+    try {
+      const response = await apiClient.get(
+        `api/auth/user/invite/${values.company}/?email=${formData.email}`,
+        {
+          headers: { Authorization: `Bearer ${authToken}` }
+        }
+      );
       toast.success(response.data.message);
-    } else {
-      toast.error('Error adding user');
+      return response;    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Error creating user';
+      throw new Error(errorMessage);
     }
   };
 

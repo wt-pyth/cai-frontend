@@ -86,31 +86,35 @@ const UserProvider = ({ children }) => {
   };
 
   // Fetch companies with a memoized callback
-  const fetchCompanies = useCallback(async (page = pagination.current, search = searchText, pageSize = pagination.pageSize) => {
-    const token = getStoredToken();
-    if (!token) return;
+  const fetchCompanies = useCallback(
+    async (page = pagination.current, search = searchText, pageSize = pagination.pageSize) => {
+      const token = getStoredToken();
+      if (!token) return;
 
-    try {
-      const { data } = await apiClient.get(`api/auth/user/companies/?page=${page}&search=${search}&page_size=${pageSize}`);
-      // Ensure unique companies by uuid
-      const uniqueCompanies = Array.from(
-        new Map(data.companies.map((item) => [item.uuid, item])).values()
-      );
-      setCompanies(uniqueCompanies);
-      setPagination((prev) => ({
-        ...prev,
-        current: data.current_page,
-        pageSize, // Use the provided pageSize
-        total: data.total_companies
-      }));
-      if (data?.companies.length > 0 && !selectedCompany) {
-        setSelectedCompany(data.companies[0].uuid);
+      try {
+        const { data } = await apiClient.get(
+          `api/auth/user/companies/?page=${page}&search=${search}&page_size=${pageSize}`
+        );
+        // Ensure unique companies by uuid
+        const uniqueCompanies = Array.from(
+          new Map(data.companies.map((item) => [item.uuid, item])).values()
+        );
+        setCompanies(uniqueCompanies);
+        setPagination((prev) => ({
+          ...prev,
+          current: data.current_page,
+          pageSize, // Use the provided pageSize
+          total: data.total_companies
+        }));
+        if (data?.companies.length > 0 && !selectedCompany) {
+          setSelectedCompany(data.companies[0].uuid);
+        }
+      } catch (error) {
+        toastError('Error fetching companies');
       }
-    } catch (error) {
-      toastError('Error fetching companies');
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedCompany, pagination.current, searchText, pagination.pageSize]);
+    },
+    [selectedCompany, pagination, searchText]
+  );
 
   // Fetch companies only when authToken is available
   useEffect(() => {
@@ -179,7 +183,7 @@ const UserProvider = ({ children }) => {
       });
 
     return refreshTokenPromiseRef.current;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Response interceptor for token refresh
@@ -187,7 +191,6 @@ const UserProvider = ({ children }) => {
     const responseInterceptor = apiClient.interceptors.response.use(
       (response) => response,
       async (error) => {
-        console.log('Response error:', error);
         const originalRequest = error.config;
         if (
           error.response?.status === 401
@@ -241,7 +244,9 @@ const UserProvider = ({ children }) => {
       router.push('/mycapabara');
     } catch (error) {
       setDisabled(false);
-      toastError(error);
+      toastError(
+        error?.response?.data?.error_description || 'Login failed. Please check your credentials.'
+      );
     }
   };
 

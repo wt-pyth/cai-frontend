@@ -59,7 +59,7 @@ const meta = {
 const SignupForm = () => {
   const [loginForm] = Form.useForm();
   const [disabled, setDisabled] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalVisible] = useState(false);
   const [modalData, setModalData] = useState({ first_name: '', last_name: '', email: '' });
   const { isAuth } = useContext(userContext);
   const router = useRouter();
@@ -83,15 +83,19 @@ const SignupForm = () => {
     setDisabled(true);
     try {
       const formData = { ...values, username: '-' };
-      const response = await axios.post(`${AUTH_PATH}api/auth/companies/${company_uuid}/users/`, formData);
+      const response = await axios.post(
+        `${AUTH_PATH}api/auth/companies/${company_uuid}/users/`,
+        formData
+      );
       if (response.status === 201) {
         setModalData({
           first_name: values.first_name,
           last_name: values.last_name,
           email: values.email
         });
-        setIsModalVisible(true);
+        // setIsModalVisible(true);
         toast.success('User created successfully. Verification email sent!');
+        await router.push('/');
       } else {
         toast.error('Error adding user');
       }
@@ -103,7 +107,7 @@ const SignupForm = () => {
   };
 
   const handleModalOk = () => {
-    setIsModalVisible(false);
+    // setIsModalVisible(false);
     router.push('/');
   };
 
@@ -186,12 +190,7 @@ const SignupForm = () => {
             </Form.Item>
             <Form.Item>
               <div className="flex justify-center gap-8 items-center mx-auto">
-                <Button
-                  className="rounded-md"
-                  htmlType="submit"
-                  type="primary"
-                  disabled={disabled}
-                >
+                <Button className="rounded-md" htmlType="submit" type="primary" disabled={disabled}>
                   Sign up
                 </Button>
                 <Link href="/login">
@@ -207,16 +206,10 @@ const SignupForm = () => {
       <Modal
         title={(
           <div className="flex justify-between items-center">
-            <div className="font-semibold text-lightText text-xl">
-              Signup Confirmation
-            </div>
+            <div className="font-semibold text-lightText text-xl">Signup Confirmation</div>
             <div className="flex justify-end items-center gap-2">
               <FontAwesomeIcon icon={faCircleQuestion} className="text-primary" />
-              <FontAwesomeIcon
-                icon={faXmark}
-                size="lg"
-                className="cursor-pointer"
-              />
+              <FontAwesomeIcon icon={faXmark} size="lg" className="cursor-pointer" />
             </div>
           </div>
         )}
@@ -226,7 +219,12 @@ const SignupForm = () => {
         width={700}
         height={50}
         footer={[
-          <Button key="return" type="primary" onClick={handleModalOk} className="bg-yellow-500 border-yellow-500">
+          <Button
+            key="return"
+            type="primary"
+            onClick={handleModalOk}
+            className="bg-yellow-500 border-yellow-500"
+          >
             Return to Login
           </Button>
         ]}

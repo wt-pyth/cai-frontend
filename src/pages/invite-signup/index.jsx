@@ -59,7 +59,7 @@ const meta = {
 const SignupForm = () => {
   const [loginForm] = Form.useForm();
   const [disabled, setDisabled] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalVisible] = useState(false);
   const [modalData, setModalData] = useState({ first_name: '', last_name: '', email: '' });
   const { isAuth } = useContext(userContext);
   const router = useRouter();
@@ -90,8 +90,9 @@ const SignupForm = () => {
           last_name: values.last_name,
           email: values.email
         });
-        setIsModalVisible(true);
+        // setIsModalVisible(true);
         toast.success('User created successfully. Verification email sent!');
+        await router.push('/');
       } else {
         toast.error('Error adding user');
       }
@@ -103,7 +104,7 @@ const SignupForm = () => {
   };
 
   const handleModalOk = () => {
-    setIsModalVisible(false);
+    // setIsModalVisible(false);
     router.push('/');
   };
 

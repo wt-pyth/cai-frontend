@@ -307,13 +307,15 @@ const Users = () => {
                 )}
               />
             )}
-            <Button
-              type="text"
-              icon={<FontAwesomeIcon icon={faEnvelope} />}
-              className="text-gray-500"
-              title="Resend Invitation"
-              onClick={() => openActionModal('resendInvitation', record, selectedCompany)}
-            />
+            {!record.joined && (
+              <Button
+                type="text"
+                icon={<FontAwesomeIcon icon={faEnvelope} />}
+                className="text-gray-500"
+                title="Resend Invitation"
+                onClick={() => openActionModal('resendInvitation', record, selectedCompany)}
+              />
+            )}
             {!isAdmin && record.email !== user?.email && !record.invited && (
               <Button
                 type="text"

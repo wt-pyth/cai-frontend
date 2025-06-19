@@ -1,8 +1,6 @@
 /* eslint-disable camelcase */
 
-import {
-  Button, Card, Checkbox, Form, Layout, Modal, Typography
-} from 'antd';
+import { Button, Card, Checkbox, Form, Layout, Modal, Typography } from 'antd';
 import FormBuilder from 'antd-form-builder';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -83,7 +81,10 @@ const SignupForm = () => {
     setDisabled(true);
     try {
       const formData = { ...values, username: '-' };
-      const response = await axios.post(`${AUTH_PATH}api/auth/companies/${company_uuid}/users/`, formData);
+      const response = await axios.post(
+        `${AUTH_PATH}api/auth/companies/${company_uuid}/users/`,
+        formData
+      );
       if (response.status === 201) {
         setModalData({
           first_name: values.first_name,
@@ -135,8 +136,7 @@ const SignupForm = () => {
           alignItems: 'center',
           justifyContent: 'center'
         }}
-        className="p-20 pt-0"
-      >
+        className="p-20 pt-0">
         <img className="w-20 mx-auto mb-12" src="/TM_CapabaraLogo-210622-PrimaryLogo.png" alt="" />
         <Card
           className="w-7/12 block"
@@ -145,8 +145,7 @@ const SignupForm = () => {
             borderRadius: '10px',
             boxShadow: '0 0 15px rgba(0,0,0,0.2)',
             maxWidth: '800px'
-          }}
-        >
+          }}>
           <Title className="text-center mb-8" level={2}>
             Signup
           </Title>
@@ -157,42 +156,30 @@ const SignupForm = () => {
               valuePropName="checked"
               rules={[
                 {
-                  validator: (_, value) => (value && value !== false
-                    ? Promise.resolve()
-                    : Promise.reject(new Error('Please read and acknowledge the Privacy notice')))
+                  validator: (_, value) =>
+                    value && value !== false
+                      ? Promise.resolve()
+                      : Promise.reject(new Error('Please read and acknowledge the Privacy notice'))
                 }
               ]}
-              className="flex justify-center"
-            >
+              className="flex justify-center">
               <Checkbox>
                 <Text className="text-sm">
-                  I have read and acknowledged the Data Protection notice
-                  {' '}
-                  <br />
-                  {' '}
-                  Click
-                  {' '}
+                  I have read and acknowledged the Data Protection notice <br /> Click{' '}
                   <a
                     href="https://capabara.com/data-protection-notice/"
                     target="_blank"
                     rel="noreferrer"
-                    className="underline"
-                  >
+                    className="underline">
                     here
-                  </a>
-                  {' '}
+                  </a>{' '}
                   to view
                 </Text>
               </Checkbox>
             </Form.Item>
             <Form.Item>
               <div className="flex justify-center gap-8 items-center mx-auto">
-                <Button
-                  className="rounded-md"
-                  htmlType="submit"
-                  type="primary"
-                  disabled={disabled}
-                >
+                <Button className="rounded-md" htmlType="submit" type="primary" disabled={disabled}>
                   Sign up
                 </Button>
                 <Link href="/login">
@@ -206,52 +193,43 @@ const SignupForm = () => {
 
       {/* Signup Confirmation Modal */}
       <Modal
-        title={(
+        title={
           <div className="flex justify-between items-center">
-            <div className="font-semibold text-lightText text-xl">
-              Signup Confirmation
-            </div>
+            <div className="font-semibold text-lightText text-xl">Signup Confirmation</div>
             <div className="flex justify-end items-center gap-2">
               <FontAwesomeIcon icon={faCircleQuestion} className="text-primary" />
-              <FontAwesomeIcon
-                icon={faXmark}
-                size="lg"
-                className="cursor-pointer"
-              />
+              <FontAwesomeIcon icon={faXmark} size="lg" className="cursor-pointer" />
             </div>
           </div>
-        )}
+        }
         visible={isModalVisible}
         onOk={handleModalOk}
         onCancel={handleModalOk}
         width={700}
         height={50}
         footer={[
-          <Button key="return" type="primary" onClick={handleModalOk} className="bg-yellow-500 border-yellow-500">
+          <Button
+            key="return"
+            type="primary"
+            onClick={handleModalOk}
+            className="bg-yellow-500 border-yellow-500">
             Return to Login
           </Button>
         ]}
-        closable={false}
-      >
+        closable={false}>
         <div className="text-gray-600 font-sans leading-relaxed text-center">
           <p>
-            Hi,
-            {' '}
+            Hi,{' '}
             <span className="text-primary">
-              {modalData.first_name}
-              {' '}
-              {modalData.last_name}
+              {modalData.first_name} {modalData.last_name}
             </span>
           </p>
           <p>
-            An email has been sent to
-            {' '}
-            <span className="text-primary">{modalData.email}</span>
+            An email has been sent to <span className="text-primary">{modalData.email}</span>
           </p>
           <p>Please check and activate your account to login.</p>
           <p>
-            If you do not receive an email please contact
-            {' '}
+            If you do not receive an email please contact{' '}
             <a href="mailto:support@capabara.com" className="text-primary">
               support@capabara.com
             </a>

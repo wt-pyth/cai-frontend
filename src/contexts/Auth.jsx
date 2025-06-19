@@ -6,13 +6,17 @@
 /* eslint-disable react/prop-types */
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import { createContext, useEffect, useState, useCallback, useRef } from 'react';
+import {
+  createContext, useEffect, useState, useCallback, useRef
+} from 'react';
 import fernet from 'fernet';
 import { toast } from 'react-toastify';
 import { useLocalStorage } from 'react-use';
 // import useSWR from 'swr';
 // import { apiGet } from 'services/api';
-import { BASE_PATH, AUTH_PATH, CLIENT_ID, API_KEY } from 'constants/site';
+import {
+  BASE_PATH, AUTH_PATH, CLIENT_ID, API_KEY
+} from 'constants/site';
 import toastError from 'utils/toastErrors';
 
 const userContext = createContext({ user: {} });
@@ -189,9 +193,9 @@ const UserProvider = ({ children }) => {
       async (error) => {
         const originalRequest = error.config;
         if (
-          error.response?.status === 401 &&
-          !originalRequest._retry &&
-          !originalRequest.url.includes('o/token/')
+          error.response?.status === 401
+          && !originalRequest._retry
+          && !originalRequest.url.includes('o/token/')
         ) {
           originalRequest._retry = true; // Mark as retried
           try {
@@ -317,7 +321,8 @@ const UserProvider = ({ children }) => {
         setPagination,
         searchText,
         setSearchText
-      }}>
+      }}
+    >
       {children}
     </userContext.Provider>
   );

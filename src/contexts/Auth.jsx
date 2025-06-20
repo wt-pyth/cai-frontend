@@ -91,30 +91,27 @@ const UserProvider = ({ children }) => {
       const token = getStoredToken();
       if (!token) return;
 
-      try {
-        const { data } = await apiClient.get(
-          `api/auth/user/companies/?page=${page}&search=${search}&page_size=${pageSize}`
-        );
-        // Ensure unique companies by uuid
-        const uniqueCompanies = Array.from(
-          new Map(data.companies.map((item) => [item.uuid, item])).values()
-        );
-        setCompanies(uniqueCompanies);
-        setPagination((prev) => ({
-          ...prev,
-          current: data.current_page,
-          pageSize, // Use the provided pageSize
-          total: data.total_companies
-        }));
-        if (data?.companies.length > 0 && !selectedCompany) {
-          setSelectedCompany(data.companies[0].uuid);
-        }
-      } catch (error) {
-        toastError('Error fetching companies');
+    try {
+      const { data } = await apiClient.get(`api/auth/user/companies/?page=${page}&search=${search}&page_size=${pageSize}`);
+      // Ensure unique companies by uuid
+      const uniqueCompanies = Array.from(
+        new Map(data.companies.map((item) => [item.uuid, item])).values()
+      );
+      setCompanies(uniqueCompanies);
+      setPagination((prev) => ({
+        ...prev,
+        current: data.current_page,
+        pageSize, // Use the provided pageSize
+        total: data.total_companies
+      }));
+      if (data?.companies.length > 0 && !selectedCompany) {
+        setSelectedCompany(data.companies[0].uuid);
       }
-    },
-    [selectedCompany, pagination, searchText]
-  );
+    } catch (error) {
+      toastError('Error fetching companies');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCompany, pagination.current, searchText, pagination.pageSize]);
 
   // Fetch companies only when authToken is available
   useEffect(() => {

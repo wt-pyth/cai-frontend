@@ -92,9 +92,7 @@ const UserProvider = ({ children }) => {
       if (!token) return;
 
       try {
-        const { data } = await apiClient.get(
-          `api/auth/user/companies/?page=${page}&search=${search}&page_size=${pageSize}`
-        );
+        const { data } = await apiClient.get(`api/auth/user/companies/?page=${page}&search=${search}&page_size=${pageSize}`);
         // Ensure unique companies by uuid
         const uniqueCompanies = Array.from(
           new Map(data.companies.map((item) => [item.uuid, item])).values()
@@ -112,8 +110,8 @@ const UserProvider = ({ children }) => {
       } catch (error) {
         toastError('Error fetching companies');
       }
-    },
-    [selectedCompany, pagination, searchText]
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedCompany, pagination.current, searchText, pagination.pageSize]
   );
 
   // Fetch companies only when authToken is available

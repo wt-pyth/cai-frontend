@@ -12,6 +12,7 @@ import {
   faEnvelope,
   faFloppyDisk,
   faLock,
+  faLockOpen,
   faPlus,
   faTrash,
   faTriangleExclamation,
@@ -548,7 +549,9 @@ export const ActionConfirmModal = ({
       />
     ),
     resendInvitation: <FontAwesomeIcon icon={faEnvelope} className="mr-2" style={{ fontSize: 48, color: '#fa8c16' }} />,
-    unassignSubscription: <DeleteOutlined style={{ fontSize: 48, color: '#fa8c16' }} />
+    unassignSubscription: <DeleteOutlined style={{ fontSize: 48, color: '#fa8c16' }} />,
+    lockUser: <FontAwesomeIcon icon={faLock} style={{ fontSize: 48, color: '#fa8c16' }} />,
+    unlockUser: <FontAwesomeIcon icon={faLockOpen} style={{ fontSize: 48, color: '#fa8c16' }} />
   };
 
   const defaultTexts = {
@@ -589,6 +592,20 @@ export const ActionConfirmModal = ({
       button: 'Unassign',
       danger: true,
       icon: <DeleteOutlined />
+    },
+    lockUser: {
+      title: 'Lock user',
+      message: 'The selected user will be locked from the system and will be unable to access until the action is reversed',
+      button: 'Lock user',
+      danger: true,
+      icon: <FontAwesomeIcon icon={faLock} className="mr-2" />
+    },
+    unlockUser: {
+      title: 'Unlock user',
+      message: 'The selected user will be unlocked and can access the system',
+      button: 'unlock user',
+      danger: false,
+      icon: <FontAwesomeIcon icon={faLockOpen} className="mr-2" />
     }
   };
 

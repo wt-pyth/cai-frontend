@@ -90,7 +90,7 @@ const PermissionsProvider = ({ children }) => {
 
       setLoading(true);
       try {
-        const response = await permissionsApiClient.get('/api/auth/me/', {
+        const response = await permissionsApiClient.get('/api/users/me/', {
           headers: {
             Authorization: `Bearer ${authToken}`
           }

@@ -4,6 +4,7 @@ import { LeftOutlined, RightOutlined, CloseOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import {
   faEnvelope,
+  faLock,
   faPlus,
   faTrash,
   faUserGear,
@@ -141,6 +142,34 @@ const Users = () => {
     }
   };
 
+  const handleLockUser = async (userId, companyId) => {
+    try {
+      const res = await apiClient.post('/api/users/lock_user/', {
+        company_id: companyId,
+        user_id: userId,
+        is_lock: true
+      });
+      if (res.status === 200) toast.success('User locked successfully');
+      fetchUsers(selectedCompany);
+    } catch (error) {
+      toastError('Error locking user');
+    }
+  };
+
+  const handleUnlockUser = async (userId, companyId) => {
+    try {
+      const res = await apiClient.post('/api/users/lock_user/', {
+        company_id: companyId,
+        user_id: userId,
+        is_lock: false
+      });
+      if (res.status === 200) toast.success('User unlocked successfully');
+      fetchUsers(selectedCompany);
+    } catch (error) {
+      toastError('Error unlocking user');
+    }
+  };
+
   // Open the dynamic action modal.
   const openActionModal = (action, record, companyId) => {
     setModalInfo({
@@ -180,6 +209,8 @@ const Users = () => {
     if (action === 'makeAdmin') await handleAssignRole(modalUser.id, modalUser.companyId);
     if (action === 'removeAdmin') await handleRemoveRole(modalUser.id, modalUser.companyId);
     if (action === 'resendInvitation') await resendInvite(modalUser.email, modalUser.companyId);
+    if (action === 'lockUser') await handleLockUser(modalUser.id, modalUser.companyId);
+    if (action === 'unlockUser') await handleUnlockUser(modalUser.id, modalUser.companyId);
     if (action === 'unassignSubscription') {
       try {
         const res = await apiClient.post('/api/auth/subscriptions/unassign/', {
@@ -219,7 +250,7 @@ const Users = () => {
       dataIndex: 'first_name',
       key: 'first_name',
       render: (text) => (
-        <div className="flex items-center ">
+        <div className="flex items-center">
           <Avatar style={{ backgroundColor: '#3B505C', color: '#fff' }} size="large">
             {text?.charAt(0).toUpperCase()}
           </Avatar>
@@ -290,6 +321,8 @@ const Users = () => {
       render: (_, record) => {
         const companyData = record.companies?.find((comp) => comp.company_uuid === selectedCompany);
         const isAdmin = companyData?.is_admin;
+        const isLocked = companyData?.is_lock || false;
+
         return (
           <div className="flex space-x-2">
             <AuthorizedUsage permission={PERMISSIONS.USERS_SET_ADMIN}>
@@ -313,6 +346,28 @@ const Users = () => {
                 />
               )}
             </AuthorizedUsage>
+            <AuthorizedUsage permission={PERMISSIONS.USERS_LOCK}>
+              {!record.invited && record.email !== user?.email && (
+                <Button
+                  type="text"
+                  icon={
+                    <FontAwesomeIcon
+                      icon={faLock}
+                      className={`${isLocked ? 'text-primary' : 'text-orange-500'}`}
+                    />
+                  }
+                  title={isLocked ? 'Unlock User' : 'Lock User'}
+                  onClick={() =>
+                    openActionModal(
+                      isLocked ? 'unlockUser' : 'lockUser',
+                      record,
+                      companyData.company_uuid
+                    )
+                  }
+                />
+              )}
+            </AuthorizedUsage>
+
             {!record.joined && (
               <Button
                 type="text"

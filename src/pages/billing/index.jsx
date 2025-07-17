@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useContext, useEffect, useState } from 'react';
-import { Layout, Spin } from 'antd';
+import { Empty, Layout, Spin, Typography } from 'antd';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { faBuildingColumns } from '@fortawesome/pro-solid-svg-icons';
@@ -11,6 +11,8 @@ import PaymentMethod from 'components/paymentMethod';
 import PaymentLogs from 'components/paymentLogs';
 import toastError from 'utils/toastErrors';
 import { userContext } from 'contexts/Auth';
+import AuthorizedUsage from 'components/AuthorizedUsage';
+import { PERMISSIONS } from 'contexts/Permissions';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '');
 
@@ -85,13 +87,25 @@ const Billing = () => {
     <MainLayout>
       <Layout>
         <CustomTabHeader items={tabItems} activeKey={activeTab} onTabChange={handleTabChange} />
-        <Spin
-          spinning={loading}
-          size="large"
-          className="flex justify-center items-center w-full h-full"
-        >
-          <div className="p-5">{tabItems.find((item) => item.key === activeTab)?.content}</div>
-        </Spin>
+        <AuthorizedUsage
+          permission={PERMISSIONS.BILLING_VIEW}
+          fallback={
+            <div className="h-[80vh] flex flex-col items-center justify-center">
+              <Empty
+                description={
+                  <Typography.Text>
+                    You do not have permission to view this section. Please contact your administrator.
+                  </Typography.Text>
+                }></Empty>
+            </div>
+          }>
+          <Spin
+            spinning={loading}
+            size="large"
+            className="flex justify-center items-center w-full h-full">
+            <div className="p-5">{tabItems.find((item) => item.key === activeTab)?.content}</div>
+          </Spin>
+        </AuthorizedUsage>
       </Layout>
     </MainLayout>
   );
@@ -117,8 +131,7 @@ const CustomTabHeader = ({ items, activeKey, onTabChange }) => (
             if (e.key === 'Enter' || e.key === ' ') {
               onTabChange(item.key);
             }
-          }}
-        >
+          }}>
           {item.label}
         </div>
       );

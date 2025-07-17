@@ -1,22 +1,18 @@
 /* eslint-disable max-len */
-import React, {
-  useState, useContext, useEffect, useCallback
-} from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
-import {
-  Layout, Table, Button, Spin
-} from 'antd';
+import { Layout, Table, Button, Spin, Empty, Typography } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faBuilding, faPencil, faTrash
-} from '@fortawesome/pro-solid-svg-icons';
+import { faBuilding, faPencil, faTrash } from '@fortawesome/pro-solid-svg-icons';
 import toastError from 'utils/toastErrors';
 import MainFooter from 'components/layouts/MainFooter';
 import Navbar from 'components/layouts/Navbar';
 import { userContext } from 'contexts/Auth';
 import { CompanyModel, ActionConfirmModal } from 'utils/popUpModals';
 import SecondaryHeader from 'components/secondaryNav';
+import AuthorizedUsage from 'components/AuthorizedUsage';
+import { PERMISSIONS } from 'contexts/Permissions';
 
 const { Content } = Layout;
 
@@ -39,32 +35,37 @@ const Company = () => {
   const [searchValue, setSearchValue] = useState(searchText);
 
   // Memoized fetch function to prevent unnecessary rerenders
-  const fetchCompaniesData = useCallback((page = pagination.current, search = searchText, pageSize = pagination.pageSize) => {
-    setIsLoading(true);
-    return fetchCompanies(page, search, pageSize)
-      .finally(() => setIsLoading(false));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchCompanies, pagination.pageSize, searchText]);
+  const fetchCompaniesData = useCallback(
+    (page = pagination.current, search = searchText, pageSize = pagination.pageSize) => {
+      setIsLoading(true);
+      return fetchCompanies(page, search, pageSize).finally(() => setIsLoading(false));
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [fetchCompanies, pagination.pageSize, searchText]
+  );
 
   // Fetch companies when pagination changes
   useEffect(() => {
     fetchCompaniesData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.current, fetchCompaniesData]);
 
   // Handle search with debounce
   // Handle search with debounce
-  const debouncedSearch = useCallback((value) => {
-    if (value !== searchText) {
-      setSearchText(value);
-      if (pagination.current === 1) {
-        fetchCompaniesData(1, value);
-      } else {
-        setPagination((prev) => ({ ...prev, current: 1 }));
+  const debouncedSearch = useCallback(
+    (value) => {
+      if (value !== searchText) {
+        setSearchText(value);
+        if (pagination.current === 1) {
+          fetchCompaniesData(1, value);
+        } else {
+          setPagination((prev) => ({ ...prev, current: 1 }));
+        }
       }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchText, pagination, setPagination, fetchCompaniesData]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [searchText, pagination, setPagination, fetchCompaniesData]
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -134,19 +135,23 @@ const Company = () => {
 
         return (
           <div className="flex space-x-2">
-            <Button
-              type="text"
-              icon={<FontAwesomeIcon icon={faPencil} />}
-              onClick={() => openCompanyModal(record)}
-              title="Edit Company"
-            />
-            <Button
-              type="text"
-              icon={<FontAwesomeIcon icon={faTrash} />}
-              onClick={() => openDeleteModal(record)}
-              title="Delete Company"
-              danger
-            />
+            <AuthorizedUsage permission={PERMISSIONS.COMPANY_UPDATE}>
+              <Button
+                type="text"
+                icon={<FontAwesomeIcon icon={faPencil} />}
+                onClick={() => openCompanyModal(record)}
+                title="Edit Company"
+              />
+            </AuthorizedUsage>
+            <AuthorizedUsage permission={PERMISSIONS.COMPANY_DELETE}>
+              <Button
+                type="text"
+                icon={<FontAwesomeIcon icon={faTrash} />}
+                onClick={() => openDeleteModal(record)}
+                title="Delete Company"
+                danger
+              />
+            </AuthorizedUsage>
           </div>
         );
       }
@@ -154,13 +159,16 @@ const Company = () => {
   ];
 
   // Handle table pagination change
-  const handleTableChange = useCallback((paginationConfig) => {
-    setPagination((prev) => ({
-      ...prev,
-      current: paginationConfig.current,
-      pageSize: paginationConfig.pageSize
-    }));
-  }, [setPagination]);
+  const handleTableChange = useCallback(
+    (paginationConfig) => {
+      setPagination((prev) => ({
+        ...prev,
+        current: paginationConfig.current,
+        pageSize: paginationConfig.pageSize
+      }));
+    },
+    [setPagination]
+  );
 
   // Custom config for company deletion modal
   const deleteModalConfig = {
@@ -186,24 +194,37 @@ const Company = () => {
               onAdd={() => openCompanyModal()}
               addButtonText="Add Company"
             />
-            <Spin spinning={isLoading} tip="Loading companies...">
-              <Table
-                dataSource={companies}
-                rowKey="uuid"
-                columns={columns}
-                pagination={{
-                  ...pagination,
-                  showSizeChanger: true,
-                  pageSizeOptions: ['10', '25', '50', '100'],
-                  itemRender: (page, type, originalElement) => {
-                    if (type === 'prev') return <Button icon={<LeftOutlined />} size="small" />;
-                    if (type === 'next') return <Button icon={<RightOutlined />} size="small" />;
-                    return originalElement;
-                  }
-                }}
-                onChange={handleTableChange}
-              />
-            </Spin>
+            <AuthorizedUsage
+              permission={PERMISSIONS.COMPANY_VIEW}
+              fallback={
+                <div className="h-[80vh] flex flex-col items-center justify-center">
+                  <Empty
+                    description={
+                      <Typography.Text>
+                        You do not have permission to view this section. Please contact your administrator.
+                      </Typography.Text>
+                    }></Empty>
+                </div>
+              }>
+              <Spin spinning={isLoading} tip="Loading companies...">
+                <Table
+                  dataSource={companies}
+                  rowKey="uuid"
+                  columns={columns}
+                  pagination={{
+                    ...pagination,
+                    showSizeChanger: true,
+                    pageSizeOptions: ['10', '25', '50', '100'],
+                    itemRender: (page, type, originalElement) => {
+                      if (type === 'prev') return <Button icon={<LeftOutlined />} size="small" />;
+                      if (type === 'next') return <Button icon={<RightOutlined />} size="small" />;
+                      return originalElement;
+                    }
+                  }}
+                  onChange={handleTableChange}
+                />
+              </Spin>
+            </AuthorizedUsage>
           </div>
         </div>
       </Content>

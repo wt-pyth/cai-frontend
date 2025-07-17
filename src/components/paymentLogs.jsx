@@ -1,10 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useContext, useEffect, useState } from 'react';
-import { Table } from 'antd';
+import { Empty, Table, Typography } from 'antd';
 import moment from 'moment';
 import { FilePdfOutlined } from '@ant-design/icons';
 import toastError from 'utils/toastErrors';
 import { userContext } from 'contexts/Auth';
+import AuthorizedUsage from './AuthorizedUsage';
+import { PERMISSIONS } from 'contexts/Permissions';
 
 const PaymentLogs = ({ setLoading }) => {
   const [paymentLogs, setPaymentLogs] = useState([]);
@@ -61,7 +63,21 @@ const PaymentLogs = ({ setLoading }) => {
   return (
     <div className="flex justify-center w-full items-center m-auto gap-20 p-5 overflow-auto">
       <div className="flex items-center justify-center w-full flex-col gap-5">
-        <Table columns={columns} dataSource={paymentLogs} />
+        <AuthorizedUsage
+          permission={PERMISSIONS.BILLING_VIEW_LOGS}
+          fallback={
+            <div className="h-[80vh] flex flex-col items-center justify-center">
+              <Empty
+                description={
+                  <Typography.Text>
+                    You do not have permission to view this section. Please contact your
+                    administrator.
+                  </Typography.Text>
+                }></Empty>
+            </div>
+          }>
+          <Table columns={columns} dataSource={paymentLogs} />
+        </AuthorizedUsage>
       </div>
     </div>
   );

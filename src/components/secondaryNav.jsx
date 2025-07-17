@@ -10,7 +10,8 @@ const SecondaryHeader = ({
   setSearchValue,
   debouncedSearch,
   onAdd,
-  addButtonText
+  addButtonText,
+  showAddButton = true // Optional prop to control add button visibility
 }) => (
   <div className="flex justify-between items-center px-3 p-1 bg-darkBlueText h-[48px]">
     <div className="flex items-center space-x-1 text-sm text-white font-semibold">
@@ -26,19 +27,26 @@ const SecondaryHeader = ({
             setSearchValue(e.target.value);
             if (debouncedSearch) debouncedSearch(e.target.value);
           }}
-          suffix={<FontAwesomeIcon icon={faSearch} style={{ fontSize: '12px' }} className="text-gray-400" />}
+          suffix={
+            <FontAwesomeIcon
+              icon={faSearch}
+              style={{ fontSize: '12px' }}
+              className="text-gray-400"
+            />
+          }
           className="rounded"
           size="small"
         />
       </div>
-      <Button
-        icon={<FontAwesomeIcon icon={faPlus} style={{ fontSize: '12px' }} className="mr-1" />}
-        onClick={onAdd}
-        className="bg-[#0D4F8B] text-white border-none hover:bg-[#0B3E6F]"
-        size="middle"
-      >
-        {addButtonText}
-      </Button>
+      {showAddButton && (
+        <Button
+          icon={<FontAwesomeIcon icon={faPlus} style={{ fontSize: '12px' }} className="mr-1" />}
+          onClick={onAdd}
+          className="bg-[#0D4F8B] text-white border-none hover:bg-[#0B3E6F]"
+          size="middle">
+          {addButtonText}
+        </Button>
+      )}
     </div>
   </div>
 );

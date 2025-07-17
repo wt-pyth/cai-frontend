@@ -1,9 +1,5 @@
-import React, {
-  useState, useEffect, useContext, useMemo
-} from 'react';
-import {
-  Layout, Table, Button, Avatar, Spin, Tag
-} from 'antd';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
+import { Layout, Table, Button, Avatar, Spin, Tag, Empty, Typography } from 'antd';
 import { LeftOutlined, RightOutlined, CloseOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import {
@@ -20,13 +16,14 @@ import { userContext } from 'contexts/Auth';
 import { UserModel, ActionConfirmModal } from 'utils/popUpModals';
 import AssignSubscriptionModal from 'utils/AssignSubscriptionModal';
 import SecondaryHeader from 'components/secondaryNav';
+import { PERMISSIONS } from 'contexts/Permissions';
+import AuthorizedUsage from 'components/AuthorizedUsage';
+import useAuth from 'hooks/useAuth';
 
 const { Content } = Layout;
 
 const Users = () => {
-  const {
-    authToken, user, apiClient, selectedCompany, fetchCompanies
-  } = useContext(userContext);
+  const { authToken, user, apiClient, selectedCompany, fetchCompanies } = useContext(userContext);
   const [userData, setUserData] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
@@ -47,6 +44,8 @@ const Users = () => {
     pageSize: 10,
     total: 0
   });
+
+  const { can } = useAuth();
 
   const fetchUsers = async (companyId, page = 1, pageSize = 10) => {
     if (!companyId) return;
@@ -93,11 +92,12 @@ const Users = () => {
 
   // Derived merged data: combine userData with assignments.
   const mergedUserData = useMemo(
-    () => userData.map((record) => ({
-      ...record,
-      // Attach all assignments for this user
-      assigned_subscription: assignments.filter((a) => a.user_id === record.id)
-    })),
+    () =>
+      userData.map((record) => ({
+        ...record,
+        // Attach all assignments for this user
+        assigned_subscription: assignments.filter((a) => a.user_id === record.id)
+      })),
     [userData, assignments]
   );
 
@@ -263,12 +263,14 @@ const Users = () => {
               {sub.subscription_name}
               <CloseOutlined
                 className="ml-1"
-                onClick={() => openUnassignModal(
-                  sub.assignment_id,
-                  sub.subscription_name,
-                  record,
-                  selectedCompany
-                )}
+                onClick={() =>
+                  openUnassignModal(
+                    sub.assignment_id,
+                    sub.subscription_name,
+                    record,
+                    selectedCompany
+                  )
+                }
               />
             </Tag>
           ))}
@@ -290,23 +292,27 @@ const Users = () => {
         const isAdmin = companyData?.is_admin;
         return (
           <div className="flex space-x-2">
-            {!record.invited && (
-              <Button
-                type="text"
-                icon={(
-                  <FontAwesomeIcon
-                    icon={faUserShield}
-                    className={`${isAdmin ? 'text-primary' : 'text-gray-500'}`}
-                  />
-                )}
-                title={isAdmin ? 'Remove Admin Role' : 'Make Admin'}
-                onClick={() => openActionModal(
-                  isAdmin ? 'removeAdmin' : 'makeAdmin',
-                  record,
-                  companyData.company_uuid
-                )}
-              />
-            )}
+            <AuthorizedUsage permission={PERMISSIONS.USERS_SET_ADMIN}>
+              {!record.invited && (
+                <Button
+                  type="text"
+                  icon={
+                    <FontAwesomeIcon
+                      icon={faUserShield}
+                      className={`${isAdmin ? 'text-primary' : 'text-gray-500'}`}
+                    />
+                  }
+                  title={isAdmin ? 'Remove Admin Role' : 'Make Admin'}
+                  onClick={() =>
+                    openActionModal(
+                      isAdmin ? 'removeAdmin' : 'makeAdmin',
+                      record,
+                      companyData.company_uuid
+                    )
+                  }
+                />
+              )}
+            </AuthorizedUsage>
             {!record.joined && (
               <Button
                 type="text"
@@ -316,15 +322,17 @@ const Users = () => {
                 onClick={() => openActionModal('resendInvitation', record, selectedCompany)}
               />
             )}
-            {!isAdmin && record.email !== user?.email && !record.invited && (
-              <Button
-                type="text"
-                icon={<FontAwesomeIcon icon={faTrash} />}
-                className="text-gray-500"
-                title="Delete User"
-                onClick={() => openActionModal('delete', record, companyData.company_uuid)}
-              />
-            )}
+            <AuthorizedUsage permission={PERMISSIONS.USERS_DELETE}>
+              {!isAdmin && record.email !== user?.email && !record.invited && (
+                <Button
+                  type="text"
+                  icon={<FontAwesomeIcon icon={faTrash} />}
+                  className="text-gray-500"
+                  title="Delete User"
+                  onClick={() => openActionModal('delete', record, companyData.company_uuid)}
+                />
+              )}
+            </AuthorizedUsage>
           </div>
         );
       }
@@ -369,31 +377,46 @@ const Users = () => {
                   setIsUserModalOpen(true);
                 }}
                 addButtonText="Add User"
+                showAddButton={can.addUsers()}
               />
             </div>
             <div className="bg-white">
-              <Spin spinning={isLoading} tip="Loading users...">
-                <Table
-                  dataSource={mergedUserData}
-                  rowKey="id"
-                  pagination={{
-                    ...pagination,
-                    showSizeChanger: true,
-                    pageSizeOptions: ['10', '25', '50', '100'],
-                    itemRender: (page, type, originalElement) => {
-                      if (type === 'prev') {
-                        return <Button icon={<LeftOutlined />} size="small" />;
+              <AuthorizedUsage
+                permission={PERMISSIONS.USERS_VIEW}
+                fallback={
+                  <div className="h-[80vh] flex flex-col items-center justify-center">
+                    <Empty
+                      description={
+                        <Typography.Text>
+                          You do not have permission to view this section. Please contact your
+                          administrator.
+                        </Typography.Text>
+                      }></Empty>
+                  </div>
+                }>
+                <Spin spinning={isLoading} tip="Loading users...">
+                  <Table
+                    dataSource={mergedUserData}
+                    rowKey="id"
+                    pagination={{
+                      ...pagination,
+                      showSizeChanger: true,
+                      pageSizeOptions: ['10', '25', '50', '100'],
+                      itemRender: (page, type, originalElement) => {
+                        if (type === 'prev') {
+                          return <Button icon={<LeftOutlined />} size="small" />;
+                        }
+                        if (type === 'next') {
+                          return <Button icon={<RightOutlined />} size="small" />;
+                        }
+                        return originalElement;
                       }
-                      if (type === 'next') {
-                        return <Button icon={<RightOutlined />} size="small" />;
-                      }
-                      return originalElement;
-                    }
-                  }}
-                  onChange={handleTableChange}
-                  columns={columns}
-                />
-              </Spin>
+                    }}
+                    onChange={handleTableChange}
+                    columns={columns}
+                  />
+                </Spin>
+              </AuthorizedUsage>
             </div>
           </div>
         </Content>

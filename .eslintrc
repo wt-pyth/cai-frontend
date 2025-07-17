@@ -2,6 +2,25 @@
   "extends": ["next", "next/core-web-vitals"],
   "rules": {
     "react/no-unescaped-entities": "off",
-    "@next/next/no-page-custom-font": "off"
+    "@next/next/no-page-custom-font": "off",
+    "max-len": ["error", { 
+      "code": 120, 
+      "ignoreUrls": true, 
+      "ignoreStrings": true, 
+      "ignoreTemplateLiterals": true 
+    }],
+    "object-curly-newline": "off",
+    "react/jsx-wrap-multilines": "off",
+    "react/self-closing-comp": "off",
+    "react/jsx-closing-bracket-location": "off",
+    "react/jsx-closing-tag-location": "off",
+    "react/jsx-one-expression-per-line": "off",
+    "react/jsx-curly-newline": "off",
+    "no-console": "warn",
+    "operator-linebreak": "off",
+    "implicit-arrow-linebreak": "off",
+    "import/order": "warn",
+    "import/no-named-as-default": "warn",
+    "react-hooks/exhaustive-deps": "warn"
   }
 }

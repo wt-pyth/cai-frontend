@@ -35,13 +35,32 @@
   "plugins": ["import", "react"],
   "rules": {
     "comma-dangle": ["error", "never"],
-    "import/order": ["error", {
+    "import/order": ["warn", {
       "groups": ["builtin", "external", "parent", "sibling", "index"]
     }],
     "react/react-in-jsx-scope": "off",
     "sort-vars": ["error", { "ignoreCase": true }],
     "linebreak-style": 0,
-    "react/prop-types": "off"
+    "react/prop-types": "off",
+    "max-len": ["error", { 
+      "code": 120, 
+      "ignoreUrls": true, 
+      "ignoreStrings": true, 
+      "ignoreTemplateLiterals": true 
+    }],
+    "object-curly-newline": "off",
+    "react/jsx-wrap-multilines": "off",
+    "react/self-closing-comp": "off",
+    "react/jsx-closing-bracket-location": "off",
+    "react/jsx-closing-tag-location": "off",
+    "react/jsx-one-expression-per-line": "off",
+    "react/no-unescaped-entities": "off",
+    "react/jsx-curly-newline": "off",
+    "no-console": "warn",
+    "operator-linebreak": "off",
+    "implicit-arrow-linebreak": "off",
+    "import/no-named-as-default": "warn",
+    "react-hooks/exhaustive-deps": "warn"
   },
   "globals": {
       "React": "writable"

@@ -1,9 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { Button } from 'antd';
+import { Button, Empty, Typography } from 'antd';
 import { toast } from 'react-toastify';
 import toastError from 'utils/toastErrors';
 import { userContext } from 'contexts/Auth';
+import AuthorizedUsage from './AuthorizedUsage';
+import { PERMISSIONS } from 'contexts/Permissions';
 
 const PaymentMethod = ({ selectedPlan, refreshSubscriptions, setActiveTab }) => {
   const { user, apiClient, selectedCompany } = useContext(userContext);
@@ -64,24 +66,34 @@ const PaymentMethod = ({ selectedPlan, refreshSubscriptions, setActiveTab }) => 
   };
 
   return (
-    <div className="flex flex-col items-center w-full gap-10 p-5 overflow-auto">
-      {iserror && <div className="text-red-500 mb-4">{iserror}</div>}
-      <form onSubmit={handleSubmit} className="space-y-6 w-[600px]">
-        <div className="p-4 border border-gray-300 rounded-md shadow-sm">
-          <CardElement className="p-2" />
+    <AuthorizedUsage
+      permission={PERMISSIONS.BILLING_CHANGE_PAYMENT_METHOD}
+      fallback={
+        <div className="h-[80vh] flex flex-col items-center justify-center">
+          <Empty
+            description={
+              <Typography.Text>
+                You do not have permission to view this section. Please contact your administrator.
+              </Typography.Text>
+            }></Empty>
         </div>
-        <Button
-          type="primary"
-          htmlType="submit"
-          disabled={!stripe || !selectedPlan}
-          className="w-full py-2"
-        >
-          Pay for
-          {' '}
-          {selectedPlan?.product || 'Plan'}
-        </Button>
-      </form>
-    </div>
+      }>
+      <div className="flex flex-col items-center w-full gap-10 p-5 overflow-auto">
+        {iserror && <div className="text-red-500 mb-4">{iserror}</div>}
+        <form onSubmit={handleSubmit} className="space-y-6 w-[600px]">
+          <div className="p-4 border border-gray-300 rounded-md shadow-sm">
+            <CardElement className="p-2" />
+          </div>
+          <Button
+            type="primary"
+            htmlType="submit"
+            disabled={!stripe || !selectedPlan}
+            className="w-full py-2">
+            Pay for {selectedPlan?.product || 'Plan'}
+          </Button>
+        </form>
+      </div>
+    </AuthorizedUsage>
   );
 };
 

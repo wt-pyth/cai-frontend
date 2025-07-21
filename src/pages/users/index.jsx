@@ -1,13 +1,10 @@
-import React, {
-  useState, useEffect, useContext, useMemo
-} from 'react';
-import {
-  Layout, Table, Button, Avatar, Spin, Tag
-} from 'antd';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
+import { Layout, Table, Button, Avatar, Spin, Tag, Empty, Typography } from 'antd';
 import { LeftOutlined, RightOutlined, CloseOutlined } from '@ant-design/icons';
 import { toast } from 'react-toastify';
 import {
   faEnvelope,
+  faLock,
   faPlus,
   faTrash,
   faUserGear,
@@ -20,13 +17,14 @@ import { userContext } from 'contexts/Auth';
 import { UserModel, ActionConfirmModal } from 'utils/popUpModals';
 import AssignSubscriptionModal from 'utils/AssignSubscriptionModal';
 import SecondaryHeader from 'components/secondaryNav';
+import { PERMISSIONS } from 'contexts/Permissions';
+import AuthorizedUsage from 'components/AuthorizedUsage';
+import useAuth from 'hooks/useAuth';
 
 const { Content } = Layout;
 
 const Users = () => {
-  const {
-    authToken, user, apiClient, selectedCompany, fetchCompanies
-  } = useContext(userContext);
+  const { authToken, user, apiClient, selectedCompany, fetchCompanies } = useContext(userContext);
   const [userData, setUserData] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
@@ -47,6 +45,8 @@ const Users = () => {
     pageSize: 10,
     total: 0
   });
+
+  const { can } = useAuth();
 
   const fetchUsers = async (companyId, page = 1, pageSize = 10) => {
     if (!companyId) return;
@@ -93,11 +93,12 @@ const Users = () => {
 
   // Derived merged data: combine userData with assignments.
   const mergedUserData = useMemo(
-    () => userData.map((record) => ({
-      ...record,
-      // Attach all assignments for this user
-      assigned_subscription: assignments.filter((a) => a.user_id === record.id)
-    })),
+    () =>
+      userData.map((record) => ({
+        ...record,
+        // Attach all assignments for this user
+        assigned_subscription: assignments.filter((a) => a.user_id === record.id)
+      })),
     [userData, assignments]
   );
 
@@ -141,6 +142,34 @@ const Users = () => {
     }
   };
 
+  const handleLockUser = async (userId, companyId) => {
+    try {
+      const res = await apiClient.post('/api/users/lock_user/', {
+        company_id: companyId,
+        user_id: userId,
+        is_lock: true
+      });
+      if (res.status === 200) toast.success('User locked successfully');
+      fetchUsers(selectedCompany);
+    } catch (error) {
+      toastError('Error locking user');
+    }
+  };
+
+  const handleUnlockUser = async (userId, companyId) => {
+    try {
+      const res = await apiClient.post('/api/users/lock_user/', {
+        company_id: companyId,
+        user_id: userId,
+        is_lock: false
+      });
+      if (res.status === 200) toast.success('User unlocked successfully');
+      fetchUsers(selectedCompany);
+    } catch (error) {
+      toastError('Error unlocking user');
+    }
+  };
+
   // Open the dynamic action modal.
   const openActionModal = (action, record, companyId) => {
     setModalInfo({
@@ -180,6 +209,8 @@ const Users = () => {
     if (action === 'makeAdmin') await handleAssignRole(modalUser.id, modalUser.companyId);
     if (action === 'removeAdmin') await handleRemoveRole(modalUser.id, modalUser.companyId);
     if (action === 'resendInvitation') await resendInvite(modalUser.email, modalUser.companyId);
+    if (action === 'lockUser') await handleLockUser(modalUser.id, modalUser.companyId);
+    if (action === 'unlockUser') await handleUnlockUser(modalUser.id, modalUser.companyId);
     if (action === 'unassignSubscription') {
       try {
         const res = await apiClient.post('/api/auth/subscriptions/unassign/', {
@@ -219,7 +250,7 @@ const Users = () => {
       dataIndex: 'first_name',
       key: 'first_name',
       render: (text) => (
-        <div className="flex items-center ">
+        <div className="flex items-center">
           <Avatar style={{ backgroundColor: '#3B505C', color: '#fff' }} size="large">
             {text?.charAt(0).toUpperCase()}
           </Avatar>
@@ -263,12 +294,14 @@ const Users = () => {
               {sub.subscription_name}
               <CloseOutlined
                 className="ml-1"
-                onClick={() => openUnassignModal(
-                  sub.assignment_id,
-                  sub.subscription_name,
-                  record,
-                  selectedCompany
-                )}
+                onClick={() =>
+                  openUnassignModal(
+                    sub.assignment_id,
+                    sub.subscription_name,
+                    record,
+                    selectedCompany
+                  )
+                }
               />
             </Tag>
           ))}
@@ -288,25 +321,53 @@ const Users = () => {
       render: (_, record) => {
         const companyData = record.companies?.find((comp) => comp.company_uuid === selectedCompany);
         const isAdmin = companyData?.is_admin;
+        const isLocked = companyData?.is_lock || false;
+
         return (
           <div className="flex space-x-2">
-            {!record.invited && (
-              <Button
-                type="text"
-                icon={(
-                  <FontAwesomeIcon
-                    icon={faUserShield}
-                    className={`${isAdmin ? 'text-primary' : 'text-gray-500'}`}
-                  />
-                )}
-                title={isAdmin ? 'Remove Admin Role' : 'Make Admin'}
-                onClick={() => openActionModal(
-                  isAdmin ? 'removeAdmin' : 'makeAdmin',
-                  record,
-                  companyData.company_uuid
-                )}
-              />
-            )}
+            <AuthorizedUsage permission={PERMISSIONS.USERS_SET_ADMIN}>
+              {!record.invited && (
+                <Button
+                  type="text"
+                  icon={
+                    <FontAwesomeIcon
+                      icon={faUserShield}
+                      className={`${isAdmin ? 'text-primary' : 'text-gray-500'}`}
+                    />
+                  }
+                  title={isAdmin ? 'Remove Admin Role' : 'Make Admin'}
+                  onClick={() =>
+                    openActionModal(
+                      isAdmin ? 'removeAdmin' : 'makeAdmin',
+                      record,
+                      companyData.company_uuid
+                    )
+                  }
+                />
+              )}
+            </AuthorizedUsage>
+            <AuthorizedUsage permission={PERMISSIONS.USERS_LOCK}>
+              {!record.invited && record.email !== user?.email && (
+                <Button
+                  type="text"
+                  icon={
+                    <FontAwesomeIcon
+                      icon={faLock}
+                      className={`${isLocked ? 'text-primary' : 'text-orange-500'}`}
+                    />
+                  }
+                  title={isLocked ? 'Unlock User' : 'Lock User'}
+                  onClick={() =>
+                    openActionModal(
+                      isLocked ? 'unlockUser' : 'lockUser',
+                      record,
+                      companyData.company_uuid
+                    )
+                  }
+                />
+              )}
+            </AuthorizedUsage>
+
             {!record.joined && (
               <Button
                 type="text"
@@ -316,15 +377,17 @@ const Users = () => {
                 onClick={() => openActionModal('resendInvitation', record, selectedCompany)}
               />
             )}
-            {!isAdmin && record.email !== user?.email && !record.invited && (
-              <Button
-                type="text"
-                icon={<FontAwesomeIcon icon={faTrash} />}
-                className="text-gray-500"
-                title="Delete User"
-                onClick={() => openActionModal('delete', record, companyData.company_uuid)}
-              />
-            )}
+            <AuthorizedUsage permission={PERMISSIONS.USERS_DELETE}>
+              {!isAdmin && record.email !== user?.email && !record.invited && (
+                <Button
+                  type="text"
+                  icon={<FontAwesomeIcon icon={faTrash} />}
+                  className="text-gray-500"
+                  title="Delete User"
+                  onClick={() => openActionModal('delete', record, companyData.company_uuid)}
+                />
+              )}
+            </AuthorizedUsage>
           </div>
         );
       }
@@ -369,31 +432,46 @@ const Users = () => {
                   setIsUserModalOpen(true);
                 }}
                 addButtonText="Add User"
+                showAddButton={can.addUsers()}
               />
             </div>
             <div className="bg-white">
-              <Spin spinning={isLoading} tip="Loading users...">
-                <Table
-                  dataSource={mergedUserData}
-                  rowKey="id"
-                  pagination={{
-                    ...pagination,
-                    showSizeChanger: true,
-                    pageSizeOptions: ['10', '25', '50', '100'],
-                    itemRender: (page, type, originalElement) => {
-                      if (type === 'prev') {
-                        return <Button icon={<LeftOutlined />} size="small" />;
+              <AuthorizedUsage
+                permission={PERMISSIONS.USERS_VIEW}
+                fallback={
+                  <div className="h-[80vh] flex flex-col items-center justify-center">
+                    <Empty
+                      description={
+                        <Typography.Text>
+                          You do not have permission to view this section. Please contact your
+                          administrator.
+                        </Typography.Text>
+                      }></Empty>
+                  </div>
+                }>
+                <Spin spinning={isLoading} tip="Loading users...">
+                  <Table
+                    dataSource={mergedUserData}
+                    rowKey="id"
+                    pagination={{
+                      ...pagination,
+                      showSizeChanger: true,
+                      pageSizeOptions: ['10', '25', '50', '100'],
+                      itemRender: (page, type, originalElement) => {
+                        if (type === 'prev') {
+                          return <Button icon={<LeftOutlined />} size="small" />;
+                        }
+                        if (type === 'next') {
+                          return <Button icon={<RightOutlined />} size="small" />;
+                        }
+                        return originalElement;
                       }
-                      if (type === 'next') {
-                        return <Button icon={<RightOutlined />} size="small" />;
-                      }
-                      return originalElement;
-                    }
-                  }}
-                  onChange={handleTableChange}
-                  columns={columns}
-                />
-              </Spin>
+                    }}
+                    onChange={handleTableChange}
+                    columns={columns}
+                  />
+                </Spin>
+              </AuthorizedUsage>
             </div>
           </div>
         </Content>

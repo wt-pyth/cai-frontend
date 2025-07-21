@@ -197,6 +197,23 @@ const UserProvider = ({ children }) => {
     return () => apiClient.interceptors.response.eject(responseInterceptor);
   }, [refreshAccessToken]);
 
+  // Set active company in backend
+  const setActiveCompany = useCallback(async (companyUuid) => {
+    const token = getStoredToken();
+    if (!token || !companyUuid) return;
+
+    try {
+      await apiClient.post('api/users/set-active-company/', {
+        company_uuid: companyUuid
+      });
+      setSelectedCompany(companyUuid);
+      toast.success('Company updated successfully');
+    } catch (error) {
+      console.error('Error setting active company:', error);
+      toastError('Error updating company');
+    }
+  }, []);
+
   // Fetch active company from backend
   const fetchActiveCompany = useCallback(async () => {
     const token = getStoredToken();
@@ -223,23 +240,6 @@ const UserProvider = ({ children }) => {
       setIsFetchingActiveCompany(false);
     }
   }, [companies, selectedCompany, isFetchingActiveCompany]);
-
-  // Set active company in backend
-  const setActiveCompany = useCallback(async (companyUuid) => {
-    const token = getStoredToken();
-    if (!token || !companyUuid) return;
-
-    try {
-      await apiClient.post('api/users/set-active-company/', {
-        company_uuid: companyUuid
-      });
-      setSelectedCompany(companyUuid);
-      toast.success('Company updated successfully');
-    } catch (error) {
-      console.error('Error setting active company:', error);
-      toastError('Error updating company');
-    }
-  }, []);
 
   // Enhanced company change handler that saves to backend
   const handleCompanyChange = useCallback(

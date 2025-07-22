@@ -6,17 +6,13 @@
 /* eslint-disable react/prop-types */
 import axios from 'axios';
 import { useRouter } from 'next/router';
-import {
-  createContext, useEffect, useState, useCallback, useRef
-} from 'react';
+import { createContext, useEffect, useState, useCallback, useRef } from 'react';
 import fernet from 'fernet';
 import { toast } from 'react-toastify';
 import { useLocalStorage } from 'react-use';
 // import useSWR from 'swr';
 // import { apiGet } from 'services/api';
-import {
-  BASE_PATH, AUTH_PATH, CLIENT_ID, API_KEY
-} from 'constants/site';
+import { BASE_PATH, AUTH_PATH, CLIENT_ID, API_KEY } from 'constants/site';
 import toastError from 'utils/toastErrors';
 
 const userContext = createContext({ user: {} });
@@ -56,6 +52,7 @@ const UserProvider = ({ children }) => {
     current: 1,
     pageSize: 10
   });
+  const [isFetchingActiveCompany, setIsFetchingActiveCompany] = useState(false);
 
   // Use useRef to persist refreshTokenPromise across renders
   const refreshTokenPromiseRef = useRef(null);
@@ -92,7 +89,9 @@ const UserProvider = ({ children }) => {
       if (!token) return;
 
       try {
-        const { data } = await apiClient.get(`api/auth/user/companies/?page=${page}&search=${search}&page_size=${pageSize}`);
+        const { data } = await apiClient.get(
+          `api/auth/user/companies/?page=${page}&search=${search}&page_size=${pageSize}`
+        );
         // Ensure unique companies by uuid
         const uniqueCompanies = Array.from(
           new Map(data.companies.map((item) => [item.uuid, item])).values()
@@ -104,14 +103,12 @@ const UserProvider = ({ children }) => {
           pageSize, // Use the provided pageSize
           total: data.total_companies
         }));
-        if (data?.companies.length > 0 && !selectedCompany) {
-          setSelectedCompany(data.companies[0].uuid);
-        }
       } catch (error) {
         toastError('Error fetching companies');
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedCompany, pagination.current, searchText, pagination.pageSize]
+    },
+    [pagination.current, searchText, pagination.pageSize]
   );
 
   // Fetch companies only when authToken is available
@@ -127,17 +124,6 @@ const UserProvider = ({ children }) => {
       router.push(`/?next=${router.asPath}`);
     }
   }, [router]);
-
-  // Note: The following SWR code is commented out as it is not used in the current context.
-  // SWR for access data
-  // const { data: accessData } = useSWR(
-  //   authToken ? 'access' : null,
-  //   () => apiGet('/depts/load/', getStoredToken()),
-  //   { refreshInterval: 600000 }
-  // );
-
-  // const hlevel = accessData?.hlevel || 20;
-  // const dtaccess = accessData?.dtaccess || [];
 
   // Refresh token logic with synchronization
   const refreshAccessToken = useCallback(async () => {
@@ -191,9 +177,9 @@ const UserProvider = ({ children }) => {
       async (error) => {
         const originalRequest = error.config;
         if (
-          error.response?.status === 401
-          && !originalRequest._retry
-          && !originalRequest.url.includes('o/token/')
+          error.response?.status === 401 &&
+          !originalRequest._retry &&
+          !originalRequest.url.includes('o/token/')
         ) {
           originalRequest._retry = true; // Mark as retried
           try {
@@ -210,6 +196,65 @@ const UserProvider = ({ children }) => {
 
     return () => apiClient.interceptors.response.eject(responseInterceptor);
   }, [refreshAccessToken]);
+
+  // Set active company in backend
+  const setActiveCompany = useCallback(async (companyUuid) => {
+    const token = getStoredToken();
+    if (!token || !companyUuid) return;
+
+    try {
+      await apiClient.post('api/users/set-active-company/', {
+        company_uuid: companyUuid
+      });
+      setSelectedCompany(companyUuid);
+      toast.success('Company updated successfully');
+    } catch (error) {
+      console.error('Error setting active company:', error);
+      toastError('Error updating company');
+    }
+  }, []);
+
+  // Fetch active company from backend
+  const fetchActiveCompany = useCallback(async () => {
+    const token = getStoredToken();
+    if (!token || isFetchingActiveCompany) return;
+
+    setIsFetchingActiveCompany(true);
+    try {
+      const { data } = await apiClient.get('api/users/active-company/');
+      if (data && data.session.uuid) {
+        setSelectedCompany(data.session.uuid);
+      } else if (companies.length > 0 && !selectedCompany) {
+        // Fallback to first company if no active company is set
+        setSelectedCompany(companies[0].uuid);
+        // Optionally set this as active company in backend
+        await setActiveCompany(companies[0].uuid);
+      }
+    } catch (error) {
+      console.error('Error fetching active company:', error);
+      // Fallback to first company if API fails
+      if (companies.length > 0 && !selectedCompany) {
+        setSelectedCompany(companies[0].uuid);
+      }
+    } finally {
+      setIsFetchingActiveCompany(false);
+    }
+  }, [companies, selectedCompany, isFetchingActiveCompany]);
+
+  // Enhanced company change handler that saves to backend
+  const handleCompanyChange = useCallback(
+    async (companyUuid) => {
+      await setActiveCompany(companyUuid);
+    },
+    [setActiveCompany]
+  );
+
+  // Fetch active company when companies are loaded and handle fallback
+  useEffect(() => {
+    if (authToken && companies.length > 0 && !isFetchingActiveCompany && !selectedCompany) {
+      fetchActiveCompany();
+    }
+  }, [authToken, companies.length, isFetchingActiveCompany, selectedCompany, fetchActiveCompany]);
 
   // Login function
   const login = async (values, setDisabled) => {
@@ -313,14 +358,14 @@ const UserProvider = ({ children }) => {
         setSelectedCompany,
         companies,
         setCompanies,
-        handleCompanyChange: (value) => setSelectedCompany(value),
+        handleCompanyChange,
         fetchCompanies,
+        fetchActiveCompany,
         pagination,
         setPagination,
         searchText,
         setSearchText
-      }}
-    >
+      }}>
       {children}
     </userContext.Provider>
   );

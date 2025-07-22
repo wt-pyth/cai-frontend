@@ -38,10 +38,10 @@ const Navbar = () => {
     { label: 'My Capabara', href: '/mycapabara' },
     ...(user?.email
       ? [
-          { label: 'Users', href: '/users' },
-          { label: 'Company', href: '/company' },
-          { label: 'Billing', href: '/billing' }
-        ]
+        { label: 'Users', href: '/users' },
+        { label: 'Company', href: '/company' },
+        { label: 'Billing', href: '/billing' }
+      ]
       : [])
   ];
 

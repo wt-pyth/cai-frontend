@@ -24,7 +24,7 @@ class MyDocument extends Document {
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
           <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-          <script data-jsd-embedded data-key="d65b9975-7529-403d-b265-09a7b9928aaf" data-base-url="https://jsd-widget.atlassian.com" src="https://jsd-widget.atlassian.com/assets/embed.js" />
+          {/* <script data-jsd-embedded data-key="d65b9975-7529-403d-b265-09a7b9928aaf" data-base-url="https://jsd-widget.atlassian.com" src="https://jsd-widget.atlassian.com/assets/embed.js" /> */}
           <script src="https://kit.fontawesome.com/2d694c25b3.js" crossOrigin="anonymous" />
         </Head>
         <body>

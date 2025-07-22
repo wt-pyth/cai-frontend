@@ -123,7 +123,7 @@ const SignupForm = () => {
                   Click
                   {' '}
                   <a
-                    href="https://capabara.com/data-protection-notice/"
+                    href="https://www.capabara.com/privacy_notice/"
                     target="_blank"
                     rel="noreferrer"
                     className="!underline"

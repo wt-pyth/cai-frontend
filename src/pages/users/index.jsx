@@ -246,17 +246,21 @@ const Users = () => {
   // Table columns.
   const columns = [
     {
+      title: '',
+      dataIndex: 'first_name',
+      key: 'first_name',
+      width: 20,
+      render: (text) => (
+        <Avatar style={{ backgroundColor: '#3B505C', color: '#fff' }} size="large">
+          {text?.charAt(0).toUpperCase()}
+        </Avatar>
+      )
+    },
+    {
       title: 'First Name',
       dataIndex: 'first_name',
       key: 'first_name',
-      render: (text) => (
-        <div className="flex items-center">
-          <Avatar style={{ backgroundColor: '#3B505C', color: '#fff' }} size="large">
-            {text?.charAt(0).toUpperCase()}
-          </Avatar>
-          <span className="ml-2 font-medium">{text}</span>
-        </div>
-      )
+      render: (text) => <span className="ml-2 font-medium">{text}</span>
     },
     {
       title: 'Last Name',

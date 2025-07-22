@@ -24,7 +24,9 @@ const Company = () => {
     pagination,
     setPagination,
     searchText,
-    setSearchText
+    setSearchText,
+    authToken,
+    selectedCompany
   } = useContext(userContext);
 
   const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
@@ -46,9 +48,11 @@ const Company = () => {
 
   // Fetch companies when pagination changes
   useEffect(() => {
-    fetchCompaniesData();
+    if (authToken && selectedCompany) {
+      fetchCompaniesData();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.current, fetchCompaniesData]);
+  }, [pagination.current, fetchCompaniesData, authToken, selectedCompany]);
 
   // Handle search with debounce
   // Handle search with debounce
@@ -201,7 +205,8 @@ const Company = () => {
                   <Empty
                     description={
                       <Typography.Text>
-                        You do not have permission to view this section. Please contact your administrator.
+                        You do not have permission to view this section. Please contact your
+                        administrator.
                       </Typography.Text>
                     }></Empty>
                 </div>

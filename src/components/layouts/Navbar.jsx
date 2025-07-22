@@ -4,9 +4,7 @@
 // import { faAngleRight } from '@fortawesome/pro-regular-svg-icons';
 import { faBell } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  Avatar, Badge, Dropdown, Select, Space
-} from 'antd';
+import { Avatar, Badge, Dropdown, Select, Space } from 'antd';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 // import qs from 'qs';
@@ -15,14 +13,25 @@ import { useContext } from 'react';
 // import useSWR, { useSWRConfig } from 'swr';
 // import { apiList, apiPut } from 'services/api';
 import { userContext } from 'contexts/Auth';
+import { PermissionsContext } from 'contexts/Permissions';
 
 // const parse = require('html-react-parser');
 
 const Navbar = () => {
   const {
     // eslint-disable-next-line max-len
-    logout, user, mounted, companies, handleCompanyChange, selectedCompany, setPagination, pagination
+    logout,
+    user,
+    mounted,
+    companies,
+    handleCompanyChange,
+    selectedCompany,
+    setPagination,
+    pagination
   } = useContext(userContext);
+
+  const { refreshPermissions } = useContext(PermissionsContext);
+
   const router = useRouter();
 
   const menu = [
@@ -152,6 +161,11 @@ const Navbar = () => {
   //   }
   // ];
 
+  const onCompanyChange = async (value) => {
+    await handleCompanyChange(value);
+    refreshPermissions();
+  };
+
   return (
     <>
       <nav className="bg-white shadow z-[11]">
@@ -169,8 +183,7 @@ const Navbar = () => {
                         ? 'text-primary  border-primary'
                         : ':hover-lightText border-white'
                     }`}
-                    key={item.href}
-                  >
+                    key={item.href}>
                     <Link href={item.href}>{item.label}</Link>
                   </div>
                 ))}
@@ -180,7 +193,7 @@ const Navbar = () => {
               <Select
                 className="w-[300px] right-2"
                 value={selectedCompany}
-                onChange={handleCompanyChange}
+                onChange={(e) => onCompanyChange(e)}
                 options={companies.map((company) => ({
                   value: company.uuid,
                   label: company.name

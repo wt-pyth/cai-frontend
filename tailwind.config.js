@@ -29,6 +29,7 @@ module.exports = {
       secondaryBorderColor: '#BFBFBF',
       tertiaryBorderColor: '#EEEEEE',
       antdBorderColor: '#f0f0f0',
+      midGray: '#6B7881',
 
       secColor: '#f4f4f4',
 

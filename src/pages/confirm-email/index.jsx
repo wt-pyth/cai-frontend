@@ -1,6 +1,4 @@
-import {
-  Button, Card, Layout, Typography
-} from 'antd';
+import { Card, Layout, Typography } from 'antd';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -35,30 +33,29 @@ const ConfirmEmail = () => {
     };
 
     fetchConfirmation();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady, email, key]);
 
   // Fallback UI when router is not ready or query parameters are missing
   if (!router.isReady || !email || !key) {
     return (
-      <div className="layout h-screen bg-[rgb(12_74_110/var(--tw-bg-opacity,1))] text-white flex flex-col justify-between">
-        <Content className="flex items-center justify-center flex-grow px-4">
+      <div className="layout h-screen bg-containerColor text-white flex flex-col justify-between">
+        <Content className="flex flex-col items-center">
+          <div className="flex justify-center py-10">
+            <img
+              src="https://www.capabara.com/wp-content/uploads/2024/05/TM_Capabara-Logo-210622-Primary-Logo-2048x1620.png"
+              alt="Capabara Logo"
+              style={{ maxWidth: '200px', height: 'auto' }}
+            />
+          </div>
           <Card
-            className="w-full max-w-[400px] p-6 rounded-lg shadow-md bg-white"
-            bodyStyle={{ padding: 0 }}
-          >
-            <div className="flex justify-center py-10">
-              <img
-                src="https://www.capabara.com/wp-content/uploads/2024/05/TM_Capabara-Logo-210622-Primary-Logo-2048x1620.png"
-                alt="Capabara Logo"
-                style={{ maxWidth: '200px', height: 'auto' }}
-              />
-            </div>
+            className="w-full max-w-[600px] p-6 shadow-lg bg-white border-2 !border-[#58595B80] !rounded-lg"
+            bodyStyle={{ padding: 0 }}>
             <div className="text-center p-6">
-              <Title level={3} className="text-[#1e3274] mb-4" style={{ color: '#1e3274 !important' }}>
-                Email Confirmation
+              <Title level={3} className="!text-midGray mb-4">
+                Email Verification
               </Title>
-              <Text className="text-lg text-[#4a4a4a]">Loading...</Text>
+              <Text className="font-semibold !text-primary">Loading ...</Text>
             </div>
           </Card>
         </Content>
@@ -68,65 +65,62 @@ const ConfirmEmail = () => {
   }
 
   return (
-    <div className="layout h-screen bg-[rgb(12_74_110/var(--tw-bg-opacity,1))] text-white flex flex-col justify-between">
-      <Content className="flex items-center justify-center flex-grow px-4">
+    <div className="layout h-screen bg-containerColor text-white flex flex-col justify-between">
+      <Content className="flex flex-col items-center">
+        <div className="flex justify-center py-10">
+          <img
+            src="https://www.capabara.com/wp-content/uploads/2024/05/TM_Capabara-Logo-210622-Primary-Logo-2048x1620.png"
+            alt="Capabara Logo"
+            style={{ maxWidth: '200px', height: 'auto' }}
+          />
+        </div>
         <Card
-          className="w-full max-w-[400px] p-6 rounded-lg shadow-md bg-white"
-          bodyStyle={{ padding: 0 }}
-        >
-          <div className="flex justify-center py-10">
-            <img
-              src="https://www.capabara.com/wp-content/uploads/2024/05/TM_Capabara-Logo-210622-Primary-Logo-2048x1620.png"
-              alt="Capabara Logo"
-              style={{ maxWidth: '200px', height: 'auto' }}
-            />
-          </div>
+          className="w-full max-w-[600px] p-6 shadow-lg bg-white border-2 !border-[#58595B80] !rounded-lg"
+          bodyStyle={{ padding: 0 }}>
           <div className="text-center p-6">
-            <Title level={3} className="text-[#1e3274] mb-4" style={{ color: '#1e3274 !important' }}>
-              Email Confirmation
+            <Title level={3} className="!text-midGray mb-4">
+              Email Verification
             </Title>
             {apiResponse === 'Email verified successfully.' && (
-              <>
-                <Text className="text-lg text-[#f5a623] block mb-2">
-                  Email Verification Successful!
+              <div className="flex flex-col items-center gap-3">
+                <Text className="font-semibold !text-primary">Verification is successful!</Text>
+                <Text className="text-sm text-midGray">
+                  You may now close this page or click the button to sign in and use Capabara
+                  applications
                 </Text>
-                <Text className="text-sm text-[#6b7280]">You can close this page and sign into Capabara Platform and other Capabara Applications</Text>
-                <br />
-                <br />
-                <Button type="primary" className="bg-[#2563eb] text-white">
-                  <a href="/" className="text-[#2563eb]">
-                    {' '}
-                    Login
-                  </a>
-                </Button>
-              </>
+                <a
+                  href="/"
+                  className="text-sm text-white !rounded-md bg-primary px-4 py-1 hover:bg-primary/80 hover:text-white">
+                  Login
+                </a>
+              </div>
             )}
             {apiResponse === 'error' && (
-              <>
-                <Text className="text-lg text-[#dc2626]">Something went wrong! in Verification</Text>
-                <br />
-                <Button type="primary" className="bg-[#2563eb] text-white">
-                  <a href="/resendemail" className="text-[#2563eb]">
-                    {' '}
-                    Resend-Email
-                  </a>
-                </Button>
-              </>
+              <div className="flex flex-col items-center gap-3">
+                <Text className="font-semibold !text-primary">
+                  Oops, verification is unsuccessful!
+                </Text>
+                <Text className="text-sm text-midGray">
+                  There is in issue with your verification attempt. Please contact your
+                  <strong> administrator </strong>
+                  or <span className="text-primary font-semibold">support@capabara.com </span>
+                  for assistance.
+                </Text>
+              </div>
             )}
             {apiResponse === 'Email already verified.' && (
-              <>
-                <Text className="text-lg text-[#2563eb]">Your email is already verified.</Text>
-                <br />
-                <br />
-                <Button type="primary" className="bg-[#2563eb] text-white">
-                  <a href="/" className="text-[#2563eb]">
-                    {' '}
-                    Login
-                  </a>
-                </Button>
-              </>
+              <div className="flex flex-col items-center gap-3">
+                <Text className="!text-primary font-semibold">Your email is already verified.</Text>
+                <a
+                  href="/"
+                  className="text-sm text-white !rounded-md bg-primary px-4 py-1 hover:bg-primary/80 hover:text-white">
+                  Login
+                </a>
+              </div>
             )}
-            {loading && <Text className="text-lg text-[#4a4a4a]">Verification in progress...</Text>}
+            {loading && (
+              <Text className="!text-primary font-semibold">Verification in progress...</Text>
+            )}
           </div>
         </Card>
       </Content>

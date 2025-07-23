@@ -330,7 +330,7 @@ const UserProvider = ({ children }) => {
       await axios.post(`${AUTH_PATH}api/auth/register/`, nformData);
       router.push('/');
       toast.success(
-        'Registration successful. Please proceed to login. An email has been sent to your verify your account!'
+        'Registration successful. An email has been sent to verify your account.'
       );
     } catch (error) {
       // setDisabled(false);

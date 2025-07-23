@@ -56,7 +56,9 @@ const Users = () => {
       const { data } = await apiClient.get(
         `api/auth/companies/${companyId}/users/?page=${page}&search=${searchText}&page_size=${pageSize}`
       );
-      const uniqueUsers = Array.from(new Map(data.users.map((item) => [item.email, item])).values());
+      const uniqueUsers = Array.from(
+        new Map(data.users.map((item) => [item.email, item])).values()
+      );
       setUserData(uniqueUsers);
       setPagination((prev) => ({
         ...prev,
@@ -246,17 +248,21 @@ const Users = () => {
   // Table columns.
   const columns = [
     {
+      title: '',
+      dataIndex: 'first_name',
+      key: 'first_name',
+      width: 20,
+      render: (text, { last_name }) => (
+        <Avatar style={{ color: '#fff' }} size="large">
+          {text?.charAt(0).toUpperCase()}{last_name?.charAt(0).toUpperCase()}
+        </Avatar>
+      )
+    },
+    {
       title: 'First Name',
       dataIndex: 'first_name',
       key: 'first_name',
-      render: (text) => (
-        <div className="flex items-center">
-          <Avatar style={{ backgroundColor: '#3B505C', color: '#fff' }} size="large">
-            {text?.charAt(0).toUpperCase()}
-          </Avatar>
-          <span className="ml-2 font-medium">{text}</span>
-        </div>
-      )
+      render: (text) => <span className="ml-2 font-medium">{text}</span>
     },
     {
       title: 'Last Name',
@@ -287,7 +293,7 @@ const Users = () => {
       render: (userAssignments, record) => (
         <div className="flex flex-wrap gap-2">
           {record.id && record.id === user.id && (
-            <Tag className="font-bold text-primary bg-primary/10">Owner</Tag>
+            <Tag className="font-semibold" color='orange'>Owner</Tag>
           )}
           {userAssignments.map((sub) => (
             <Tag key={sub.assignment_id} className="font-semibold">

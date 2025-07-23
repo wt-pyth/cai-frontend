@@ -56,7 +56,7 @@ const Users = () => {
       const { data } = await apiClient.get(
         `api/auth/companies/${companyId}/users/?page=${page}&search=${searchText}&page_size=${pageSize}`
       );
-      const uniqueUsers = Array.from(new Map(data.users.map((item) => [item.id, item])).values());
+      const uniqueUsers = Array.from(new Map(data.users.map((item) => [item.email, item])).values());
       setUserData(uniqueUsers);
       setPagination((prev) => ({
         ...prev,
@@ -97,7 +97,7 @@ const Users = () => {
       userData.map((record) => ({
         ...record,
         // Attach all assignments for this user
-        assigned_subscription: assignments.filter((a) => a.user_id === record.id)
+        assigned_subscription: record.id ? assignments.filter((a) => a.user_id === record.id) : []
       })),
     [userData, assignments]
   );
@@ -290,7 +290,7 @@ const Users = () => {
       key: 'assigned_subscription',
       render: (userAssignments, record) => (
         <div className="flex flex-wrap gap-2">
-          {record.id === user.id && (
+          {record.id && record.id === user.id && (
             <Tag className="font-bold text-primary bg-primary/10">Owner</Tag>
           )}
           {userAssignments.map((sub) => (
@@ -456,7 +456,7 @@ const Users = () => {
                 <Spin spinning={isLoading} tip="Loading users...">
                   <Table
                     dataSource={mergedUserData}
-                    rowKey="id"
+                    rowKey="email"
                     pagination={{
                       ...pagination,
                       showSizeChanger: true,

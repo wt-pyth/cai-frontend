@@ -40,6 +40,7 @@ images:
 options:
   substitution_option: 'ALLOW_LOOSE'
   machineType: 'E2_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
   
 # Only trigger on production branch
 substitutions:

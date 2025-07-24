@@ -1,0 +1,50 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'gcr.io/$PROJECT_ID/cap-platform:$COMMIT_SHA',
+      '-t', 'gcr.io/$PROJECT_ID/cap-platform:latest',
+      '.'
+    ]
+
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/cap-platform:$COMMIT_SHA']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/cap-platform:latest']
+
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args: [
+      'run', 'deploy', 'cap-platform',
+      '--image', 'gcr.io/$PROJECT_ID/cap-platform:$COMMIT_SHA',
+      '--region', 'us-central1',
+      '--platform', 'managed',
+      '--allow-unauthenticated',
+      '--port', '3000',
+      '--memory', '2Gi',
+      '--cpu', '1',
+      '--max-instances', '10',
+      '--min-instances', '0',
+      '--set-env-vars', 'NODE_ENV=production'
+    ]
+
+images:
+  - gcr.io/$PROJECT_ID/cap-platform:$COMMIT_SHA
+  - gcr.io/$PROJECT_ID/cap-platform:latest
+
+# Configure build options
+options:
+  substitution_option: 'ALLOW_LOOSE'
+  machineType: 'E2_HIGHCPU_8'
+  
+# Only trigger on production branch
+substitutions:
+  _SERVICE_NAME: cap-platform
+  _REGION: us-central1
+
+# Build timeout
+timeout: 1200s

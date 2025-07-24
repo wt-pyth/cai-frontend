@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  cap-platform:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    volumes:
+      # Mount source code for development (comment out for production-like testing)
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    restart: unless-stopped
+    networks:
+      - cap-network
+
+  # Optional: Add a reverse proxy for production-like setup
+  # nginx:
+  #   image: nginx:alpine
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #   depends_on:
+  #     - cap-platform
+  #   networks:
+  #     - cap-network
+
+networks:
+  cap-network:
+    driver: bridge
+
+# Optional: Add volumes for persistent data
+# volumes:
+#   node_modules:
+#   next_cache:

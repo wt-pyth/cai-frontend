@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 import axios from 'axios';
 import { createContext, useEffect, useState, useContext, useCallback, useRef } from 'react';
+import { userContext } from './Auth';
 import { AUTH_PATH } from 'constants/site';
 import toastError from 'utils/toastErrors';
-import { userContext } from './Auth';
 
 const PermissionsContext = createContext({
   permissions: [],

@@ -2,9 +2,9 @@ import React, { useContext, useState } from 'react';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { Button, Empty, Typography } from 'antd';
 import { toast } from 'react-toastify';
+import AuthorizedUsage from './AuthorizedUsage';
 import toastError from 'utils/toastErrors';
 import { userContext } from 'contexts/Auth';
-import AuthorizedUsage from './AuthorizedUsage';
 import { PERMISSIONS } from 'contexts/Permissions';
 
 const PaymentMethod = ({ selectedPlan, refreshSubscriptions, setActiveTab }) => {

@@ -4,8 +4,8 @@ import { Button, InputNumber, Modal } from 'antd';
 import { faAngleDown, faAngleUp } from '@fortawesome/pro-regular-svg-icons';
 import moment from 'moment';
 import { toast } from 'react-toastify';
-import { userContext } from 'contexts/Auth';
 import AuthorizedUsage from './AuthorizedUsage';
+import { userContext } from 'contexts/Auth';
 import { PERMISSIONS } from 'contexts/Permissions';
 
 const Subscriptions = ({

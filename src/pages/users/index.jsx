@@ -252,9 +252,9 @@ const Users = () => {
       dataIndex: 'first_name',
       key: 'first_name',
       width: 20,
-      render: (text, { last_name }) => (
+      render: (text, { last_name: lastName }) => (
         <Avatar style={{ color: '#fff' }} size="large">
-          {text?.charAt(0).toUpperCase()}{last_name?.charAt(0).toUpperCase()}
+          {text?.charAt(0).toUpperCase()}{lastName?.charAt(0).toUpperCase()}
         </Avatar>
       )
     },
@@ -293,7 +293,7 @@ const Users = () => {
       render: (userAssignments, record) => (
         <div className="flex flex-wrap gap-2">
           {record.id && record.id === user.id && (
-            <Tag className="font-semibold" color='orange'>Owner</Tag>
+            <Tag className="font-semibold" color="orange">Owner</Tag>
           )}
           {userAssignments.map((sub) => (
             <Tag key={sub.assignment_id} className="font-semibold">

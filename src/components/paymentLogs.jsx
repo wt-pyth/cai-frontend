@@ -3,9 +3,9 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Empty, Table, Typography } from 'antd';
 import moment from 'moment';
 import { FilePdfOutlined } from '@ant-design/icons';
+import AuthorizedUsage from './AuthorizedUsage';
 import toastError from 'utils/toastErrors';
 import { userContext } from 'contexts/Auth';
-import AuthorizedUsage from './AuthorizedUsage';
 import { PERMISSIONS } from 'contexts/Permissions';
 
 const PaymentLogs = ({ setLoading }) => {

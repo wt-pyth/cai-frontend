@@ -1,51 +1,139 @@
 steps:
-  # Build the container image
-  - name: 'gcr.io/cloud-builders/docker'
-    args: [
-      'build',
-      '-t', 'gcr.io/$PROJECT_ID/cap-platform:$COMMIT_SHA',
-      '-t', 'gcr.io/$PROJECT_ID/cap-platform:latest',
-      '.'
-    ]
+  # Step 1: Determine environment and set variables
+  - name: 'ubuntu'
+    entrypoint: 'bash'
+    args:
+      - -c
+      - |
+        echo "Building commit $COMMIT_SHA"
+        echo "Branch: $BRANCH_NAME"
+        
+        # Check required variables
+        if [ -z "$_IMAGE" ]; then
+          echo "ERROR: _IMAGE variable is not set. Please add it to the build trigger."
+          exit 1
+        fi
+        
+        if [ -z "$_SERVICE" ]; then
+          echo "ERROR: _SERVICE variable is not set. Please add it to the build trigger."
+          exit 1
+        fi
+        
+        if [ -z "$_REGION" ]; then
+          echo "ERROR: _REGION variable is not set. Please add it to the build trigger."
+          exit 1
+        fi
 
-  # Push the container image to Container Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/cap-platform:$COMMIT_SHA']
+        echo "All variable check done"
 
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/cap-platform:latest']
-
-  # Deploy container image to Cloud Run
+  # Step 2: Download environment file from Secret Manager
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args: [
-      'run', 'deploy', 'cap-platform',
-      '--image', 'gcr.io/$PROJECT_ID/cap-platform:$COMMIT_SHA',
-      '--region', 'us-central1',
-      '--platform', 'managed',
-      '--allow-unauthenticated',
-      '--port', '3000',
-      '--memory', '2Gi',
-      '--cpu', '1',
-      '--max-instances', '10',
-      '--min-instances', '0',
-      '--set-env-vars', 'NODE_ENV=production'
-    ]
+    entrypoint: 'bash'
+    args:
+      - -c
+      - |
+        echo "Fetching secrets from Secret Manager..."
+        gcloud secrets versions access latest --secret="cai-frontend-env" > .env.production
+        echo "Secrets fatch and save into .env.production"
+
+  # Step 3: Debug - Check if secret is available (without exposing it)
+  - name: 'ubuntu'
+    entrypoint: 'bash'
+    args:
+      - -c
+      - |
+        echo "Checking if FONT_AWESOME_TOKEN is set..."
+        if [ -z "$$FONT_AWESOME_TOKEN" ]; then
+          echo "ERROR: FONT_AWESOME_TOKEN is not set"
+          exit 1
+        else
+          echo "FONT_AWESOME_TOKEN is set (length: $${#FONT_AWESOME_TOKEN})"
+        fi
+    secretEnv: ['FONT_AWESOME_TOKEN']
+
+  # Step 4: Create .npmrc file with Font Awesome token
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'bash'
+    args:
+      - -c
+      - |
+        echo "Creating .npmrc file..."
+        echo "legacy-peer-deps=true" > .npmrc
+        echo "@fortawesome:registry=https://npm.fontawesome.com/" >> .npmrc
+        echo "//npm.fontawesome.com/:_authToken=$$FONT_AWESOME_TOKEN" >> .npmrc
+        echo ".npmrc file created successfully"
+    secretEnv: ['FONT_AWESOME_TOKEN']
+
+  # Step 5: Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-f'
+      - 'Dockerfile'
+      - '--build-arg'
+      - 'FONT_AWESOME_TOKEN=$$FONT_AWESOME_TOKEN'
+      - '-t'
+      - '$_IMAGE:$COMMIT_SHA'
+      - '-t'
+      - '$_IMAGE:latest'
+      - '.'
+    secretEnv: ['FONT_AWESOME_TOKEN']
+
+  # Step 6: Push Docker images
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '$_IMAGE:$COMMIT_SHA']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '$_IMAGE:latest']
+
+  # Step 7: Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '$_SERVICE'
+      - '--image'
+      - '$_IMAGE:$COMMIT_SHA'
+      - '--region'
+      - '$_REGION'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--port'
+      - '3000'
+      - '--memory'
+      - '512Mi'
+      - '--cpu'
+      - '1'
+      - '--max-instances'
+      - '10'
+      - '--concurrency'
+      - '80'
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'services'
+      - 'add-iam-policy-binding'
+      - '$_SERVICE'
+      - '--region'
+      - '$_REGION'
+      - '--member'
+      - 'allUsers'
+      - '--role'
+      - 'roles/run.invoker'
 
 images:
-  - gcr.io/$PROJECT_ID/cap-platform:$COMMIT_SHA
-  - gcr.io/$PROJECT_ID/cap-platform:latest
+  - '$_IMAGE:$COMMIT_SHA'
+  - '$_IMAGE:latest'
 
-# Configure build options
 options:
-  substitution_option: 'ALLOW_LOOSE'
-  machineType: 'E2_HIGHCPU_8'
   logging: CLOUD_LOGGING_ONLY
-  
-# Only trigger on production branch
-substitutions:
-  _SERVICE_NAME: cap-platform
-  _REGION: us-central1
+  machineType: 'E2_HIGHCPU_8'
 
-# Build timeout
-timeout: 1200s
+timeout: '1800s'
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/capabara-auth/secrets/FONT_AWESOME_TOKEN/versions/latest
+      env: FONT_AWESOME_TOKEN
